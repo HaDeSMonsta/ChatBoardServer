@@ -69,9 +69,6 @@ public class Core {
 	 * Reads authentication keys from a file and stores them in a HashSet for future use.
 	 * If an IOException occurs while reading the file, a RuntimeException is thrown.
 	 * After reading the keys, the method sleeps for 30 minutes before finishing.
-	 *
-	 * @throws RuntimeException     if an IOException occurs while reading the file
-	 * @throws InterruptedException if the thread is interrupted while sleeping
 	 */
 	private static void readKeys() {
 		Set<String> temp = new HashSet<>();

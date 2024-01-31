@@ -1,7 +1,7 @@
 package server;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,6 +15,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class Logic extends Thread {
 	private static final int SESSION_SECS = Integer.parseInt(System.getenv("SESSION_SECS"));
+	private static final int MAX_BUFFER_SIZE = Integer.parseInt(System.getenv("MAX_BUFFER_SIZE"));
 	private final Logger logger = LogManager.getLogger(Logic.class);
 	private final Socket sock;
 	private final Random random = new Random();
@@ -37,8 +38,86 @@ public class Logic extends Thread {
 				}
 			}).start();
 
+			final String authKey = readStream(in);
+
+			Thread.sleep(Duration.ofSeconds(2)); // Why???
+
+			if(!Core.containsKey(authKey)) {
+				logger.debug("Invalid authentication was tried, key was: " + authKey);
+				logger.debug(String.format("Session %d ended", sessionID));
+				writeStream(out, "Invalid authentication");
+				return;
+			} else {
+				logger.debug(String.format("Authentication %s Ok, Session %d will begin", authKey, sessionID));
+				writeStream(out, "Authentication Ok");
+			}
+
+			final String request = readStream(in);
+			logger.info(String.format("Session %d: Got request: %s", sessionID, request));
+
+			String answer = "Invalid request";
+			if(!request.isBlank()) {
+				answer = switch(request.charAt(0)) {
+					case '0' -> registerUser(request);
+					case '1' -> unblockUser(request);
+					case '2' -> createPost(request);
+					case '3' -> deletePost(request);
+					case '4' -> votePost(request);
+					case '5' -> getBoard(request);
+					default -> request;
+				};
+			}
+
+			writeStream(out, answer);
+			String toLog = answer.length() > 40 ? answer.substring(0, 40) + "..." : answer;
+			logger.debug(String.format("Session %d, answered: %s", sessionID, toLog));
+
 		} catch(IOException e) {
 			logger.error("Error: ", e);
+		} catch(InterruptedException e) {
+			logger.warn("Sleep interrupted: ", e);
 		}
+	}
+
+    private String registerUser(String request) {
+        return "Default register user";
+    }
+
+    private String unblockUser(String request) {
+        return "Default unblock user";
+    }
+
+    private String createPost(String request) {
+        return "Default create post";
+    }
+
+    private String deletePost(String request) {
+        return "Default delete post";
+    }
+
+    private String votePost(String request) {
+        return "Default vote post";
+    }
+
+    private String getBoard(String request) {
+        return "Default get board";
+    }
+
+    private String readStream(InputStream in) throws IOException {
+        int index = 0;
+        final byte[] buffer = new byte[MAX_BUFFER_SIZE];
+        byte read;
+
+		while((read = (byte) in.read()) != -1 && index < (MAX_BUFFER_SIZE - 1)) {
+			buffer[index++] = read;
+		}
+
+		return new String(buffer, 0, index);
+	}
+
+	private void writeStream(OutputStream out, String payload) throws IOException {
+		out.write(payload.getBytes());
+		out.write(-1);
+		out.flush();
 	}
 }
