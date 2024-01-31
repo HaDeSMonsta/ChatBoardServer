@@ -14,8 +14,8 @@ import java.util.HashSet;
 
 public class Server {
 	private static final Set<String> keys = Collections.synchronizedSet(new HashSet<>());
-	private static final String KEYS_PATH = "src/main/resources/authenticationKeys.txt";
-	private static final int SLEEP_MINS = 30;
+	private static final String KEYS_PATH = "data/authenticationKeys.txt";
+	private static final int SLEEP_MINS = Integer.parseInt(System.getenv("SLEEP_MINS"));
 
 	public static void main(String[] args) throws InterruptedException {
 

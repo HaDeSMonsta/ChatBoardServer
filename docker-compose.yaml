@@ -6,3 +6,5 @@ services:
       - "8080:8080"
     volumes:
       - D:\Projekte\IntelliJ\ChatBoardServer_new\src\main\resources\:/data
+    environment:
+      - SLEEP_MINS=30
