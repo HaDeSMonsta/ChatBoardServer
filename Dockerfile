@@ -16,15 +16,6 @@ FROM openjdk:20
 # Set the working directory
 WORKDIR /app
 
-# Set the environment variable
-ENV APPLICATION_USER hades
-
-# Create a group and user
-RUN addgroup -S \$APPLICATION_USER && adduser -S \$APPLICATION_USER -G \$APPLICATION_USER
-
-# Change to the user
-USER \$APPLICATION_USER
-
 # Copy the jar file from the builder to the current location
 COPY --from=build /home/gradle/project/build/libs/*.jar ./ChatBoardServer_new.jar
 
