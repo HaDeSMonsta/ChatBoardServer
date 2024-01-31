@@ -15,7 +15,7 @@ import java.util.HashSet;
 
 public class Core {
 	private static final Set<String> keys = Collections.synchronizedSet(new HashSet<>());
-	private static final String KEYS_PATH = "/postgres_data/authenticationKeys.txt";
+	private static final String KEYS_PATH = "/userdata/authenticationKeys.txt";
 	private static final int SLEEP_MINS = Integer.parseInt(System.getenv("SLEEP_MINS"));
 	private static final Logger logger = LogManager.getLogger(Core.class);
 

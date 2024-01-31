@@ -5,7 +5,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - /home/hades/ChatBoardServer/src/main/resources/:/data
+      - /home/hades/ChatBoardServer/src/main/resources/userdata/:/userdata
     env_file:
       - .env
 
