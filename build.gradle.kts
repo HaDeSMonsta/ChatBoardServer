@@ -1,5 +1,7 @@
 plugins {
     id("java")
+    id("org.springframework.boot") version "2.6.4"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
 repositories {
@@ -7,7 +9,6 @@ repositories {
 }
 
 dependencies {
-    // Default when creating
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
 
@@ -18,6 +19,10 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
     implementation("org.apache.logging.log4j:log4j-core:2.17.1")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.postgresql:postgresql")  // Postgres JDBC driver
 }
 
 val jarName = "ChatBoardServer"
