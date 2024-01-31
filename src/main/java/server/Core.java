@@ -1,6 +1,5 @@
 package server;
 
-import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +15,7 @@ import java.util.HashSet;
 
 public class Core {
 	private static final Set<String> keys = Collections.synchronizedSet(new HashSet<>());
-	private static final String KEYS_PATH = "/data/authenticationKeys.txt";
+	private static final String KEYS_PATH = "/postgres_data/authenticationKeys.txt";
 	private static final int SLEEP_MINS = Integer.parseInt(System.getenv("SLEEP_MINS"));
 	private static final Logger logger = LogManager.getLogger(Core.class);
 
@@ -93,7 +92,6 @@ public class Core {
 			Thread.sleep(Duration.ofMinutes(SLEEP_MINS));
 		} catch(InterruptedException e) {
 			logger.error(e.getMessage());
-			System.exit(1);
 		}
 	}
 }

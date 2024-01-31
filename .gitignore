@@ -43,3 +43,6 @@ bin/
 
 ### Credentials ###
 authenticationKeys.txt
+
+### Database ###
+src/main/resources/postgres_data

@@ -6,5 +6,15 @@ services:
       - "8080:8080"
     volumes:
       - /home/hades/ChatBoardServer/src/main/resources/:/data
-    environment:
-      - SLEEP_MINS=30
+    env_file:
+      - .env
+
+  db:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - /home/hades/ChatBoardServer/src/main/resources/init_db:/docker-entrypoint-initdb.d
+      - /home/hades/ChatBoardServer/src/main/resources/postgres_data:/var/lib/postgresql/data
