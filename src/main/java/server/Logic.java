@@ -10,6 +10,6 @@ public class Logic extends Thread {
 
 	@Override
 	public void run() {
-		super.run();
+
 	}
 }

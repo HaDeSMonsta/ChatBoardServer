@@ -16,6 +16,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     testCompileOnly("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+
+    implementation("org.apache.logging.log4j:log4j-core:2.17.1")
 }
 
 val jarName = "ChatBoardServer"
@@ -28,7 +30,7 @@ tasks.jar {
     archiveBaseName.set(jarName)
     version = jarVersion
 
-    manifest.attributes["Main-Class"] = "server/Server"
+    manifest.attributes["Main-Class"] = "server/Core"
 
     val dependencies = configurations
         .runtimeClasspath
