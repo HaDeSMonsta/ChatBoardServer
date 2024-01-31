@@ -28,7 +28,7 @@ tasks.jar {
     archiveBaseName.set(jarName)
     version = jarVersion
 
-    manifest.attributes["Main-Class"] = "server/Main"
+    manifest.attributes["Main-Class"] = "server/Server"
 
     val dependencies = configurations
         .runtimeClasspath
