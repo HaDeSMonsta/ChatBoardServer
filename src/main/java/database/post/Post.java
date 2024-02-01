@@ -1,5 +1,6 @@
-package database.tables;
+package database.post;
 
+import database.user.User;
 import lombok.Data;
 
 import javax.persistence.*;

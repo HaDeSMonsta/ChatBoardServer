@@ -1,5 +1,6 @@
 package server;
 
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,7 +20,8 @@ public class Core {
 	private static final int SLEEP_MINS = Integer.parseInt(System.getenv("SLEEP_MINS"));
 	private static final Logger logger = LogManager.getLogger(Core.class);
 
-	public static void main(String[] args) throws InterruptedException {
+	@SneakyThrows
+	public static void main(String[] args) {
 
 		// Create a new thread that continuously reads authentication keys.
 		new Thread(() -> {
