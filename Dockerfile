@@ -1,5 +1,5 @@
 # Use official gradle image as the builder
-FROM gradle:8.4-jdk20 AS build
+FROM gradle:8.4-jdk17 AS build
 
 # Set the working directory
 WORKDIR /home/gradle/project
@@ -11,7 +11,7 @@ COPY --chown=gradle:gradle . /home/gradle/project
 RUN gradle build --no-daemon
 
 # Use OpenJDK for runtime
-FROM openjdk:20
+FROM openjdk:17
 
 # Set the working directory
 WORKDIR /app
