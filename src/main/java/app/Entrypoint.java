@@ -14,8 +14,12 @@ public class Entrypoint {
 		SpringApplication.run(Entrypoint.class, args);
 	}
 
+	private final Core core;
+
 	@Autowired
-	private Core core;
+	public Entrypoint(Core core) {
+		this.core = core;
+	}
 
 	@PostConstruct
 	public void init() {

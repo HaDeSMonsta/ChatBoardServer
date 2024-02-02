@@ -14,7 +14,6 @@ import java.util.Random;
 public class Logic extends Thread {
 	private static final int SESSION_SECS = Integer.parseInt(System.getenv("SESSION_SECS"));
 	private static final long SESSION_MS = SESSION_SECS * 1_000L;
-	private final Core core = new Core();
 	private static final int MAX_BUFFER_SIZE = Integer.parseInt(System.getenv("MAX_BUFFER_SIZE"));
 	private final Logger logger = LogManager.getLogger(Logic.class);
 	private final Socket sock;
@@ -43,7 +42,7 @@ public class Logic extends Thread {
 
 			Thread.sleep(SESSION_MS); // Why???
 
-			if(!core.containsKey(authKey)) {
+			if(!Core.containsKey(authKey)) {
 				logger.info("Invalid authentication was tried, key was: " + authKey);
 				logger.info(String.format("Session %d ended", sessionID));
 				writeStream(out, "Invalid authentication");

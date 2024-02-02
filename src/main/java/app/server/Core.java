@@ -1,8 +1,13 @@
 package app.server;
 
+import app.database.user.User;
+import app.database.user.UserService;
 import lombok.SneakyThrows;
+import org.apache.catalina.core.ApplicationContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -23,9 +28,14 @@ public class Core {
 	private static final long NUM_SCAN_INTVL_MS =
 			Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN")) * 60_000L;
 	private final Logger logger = LogManager.getLogger(Core.class);
+	private final UserService service;
+
+	@Autowired
+	public Core(UserService service) {
+		this.service = service;
+	}
 
 	@SneakyThrows
-	@PostConstruct
 	public void start() {
 
 		// Create a new thread that continuously reads authentication keys.
@@ -34,7 +44,14 @@ public class Core {
 			while(true) readKeys();
 		}).start();
 
-		try (ServerSocket server = new ServerSocket(PORT)) {
+		logger.info("Calling creation method");
+		service.createAndSafeUser("Hades", 13135);
+		logger.info("Creation method is over");
+
+		for(User u : service.getAllUsers()) System.out.println(u);
+
+
+		/*try (ServerSocket server = new ServerSocket(PORT)) {
 			logger.info("Server is listening on port: " + PORT);
 
 			// TODO Max active session count
@@ -47,7 +64,7 @@ public class Core {
 		} catch(IOException e) {
 			logger.error(e.getMessage());
 			System.exit(1);
-		}
+		}*/
 
 	}
 
@@ -64,7 +81,7 @@ public class Core {
 	 *
 	 * @return true if the key exists, false otherwise
 	 */
-	boolean containsKey(String key) {
+	static boolean containsKey(String key) {
 		synchronized(keys) {
 			return keys.contains(key);
 		}
