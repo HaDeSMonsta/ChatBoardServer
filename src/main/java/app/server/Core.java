@@ -4,15 +4,11 @@ import app.database.post.Post;
 import app.database.post.PostService;
 import app.database.user.User;
 import app.database.user.UserService;
-import lombok.SneakyThrows;
-import org.apache.catalina.core.ApplicationContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -39,7 +35,6 @@ public class Core {
 		this.postService = postService;
 	}
 
-	@SneakyThrows
 	public void start() {
 
 		// Create a new thread that continuously reads authentication keys.
@@ -59,20 +54,20 @@ public class Core {
 		for(Post p : postService.getAllPosts()) System.out.println(p);
 
 
-		/*try (ServerSocket server = new ServerSocket(PORT)) {
+		try (ServerSocket server = new ServerSocket(PORT)) {
 			logger.info("Server is listening on port: " + PORT);
 
 			// TODO Max active session count
 			// noinspection InfiniteLoopStatement
 			while(true) {
 				Socket sock = server.accept();
-				new Logic(sock).start();
+				new Logic(sock, userService, postService).start();
 			}
 
 		} catch(IOException e) {
 			logger.error(e.getMessage());
 			System.exit(1);
-		}*/
+		}
 
 	}
 

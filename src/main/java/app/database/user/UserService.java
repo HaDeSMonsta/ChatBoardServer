@@ -25,6 +25,12 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 
+	public synchronized Optional<User> getUserByName(String name) {
+		List<User> users = getAllUsers();
+		for(User u : users) if(u.getName().equals(name)) return Optional.of(u);
+		return Optional.empty();
+	}
+
 	public synchronized User saveUser(User user) {
 		return userRepository.save(user);
 	}
@@ -45,12 +51,28 @@ public class UserService {
 		logger.info("Beginning insertion method");
 		User u = new User();
 		u.setName(name);
-		u.setPubId(secNum);
+		u.setSecNum(secNum);
 		u.setBlocked(false);
 		logger.info("Inserting");
 		User created = saveUser(u);
 		logger.info("Inserted");
 		return created;
+	}
+
+	/**
+	 * Sets the block status of a user.
+	 *
+	 * @param userName     the name of the user
+	 * @param blockStatus  the desired block status (true if blocked, false if unblocked)
+	 * @return true if the block status is successfully set, false otherwise
+	 */
+	public synchronized boolean setBlock(String userName, boolean blockStatus) {
+		Optional<User> option = getUserByName(userName);
+		if(option.isEmpty()) return false;
+
+		User user = option.get();
+		user.setBlocked(blockStatus);
+		return true;
 	}
 
 }

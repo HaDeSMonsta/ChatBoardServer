@@ -1,7 +1,7 @@
 CREATE TABLE "user"
 (
     id      SERIAL PRIMARY KEY,
-    pub_id  integer UNIQUE NOT NULL,
-    name    VARCHAR(255)   NOT NULL,
+    sec_num  integer NOT NULL,
+    name    VARCHAR(255)   UNIQUE NOT NULL,
     blocked BOOLEAN DEFAULT FALSE
 );

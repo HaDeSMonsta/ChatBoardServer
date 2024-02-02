@@ -13,10 +13,13 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@Column(name = "pub_id", unique = true, nullable = false)
-	private Integer pubId;
-	@Column(name = "name", nullable = false)
+
+	@Column(name = "sec_num", nullable = false)
+	private Integer secNum;
+
+	@Column(name = "name", unique = true, nullable = false)
 	private String name;
+
 	@Column(name = "blocked", nullable = false)
 	private Boolean blocked;
 }

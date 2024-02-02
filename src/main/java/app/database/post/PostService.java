@@ -6,8 +6,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -68,5 +70,30 @@ public class PostService {
 		);
 		postRepository.save(post);
 		return true;
+	}
+
+	/**
+	 * Retrieves a specified amount of posts written by a certain user.
+	 *
+	 * @param username the username of the user
+	 * @param limit    the maximum number of posts to retrieve
+	 * @return a unmutable list of posts written by the user, up to the specified limit
+	 */
+	public synchronized List<Post> getAmountOfPostByUsername(String username, int limit) {
+		List<Post> posts = getAllPosts()
+				.stream()
+				.filter(p -> p.getAuthor().getName().equals(username))
+				.collect(Collectors.toList());
+		Collections.shuffle(posts);
+		return posts
+				.stream()
+				.limit(limit)
+				.toList();
+	}
+
+	public synchronized int getVotes(Post post) {
+		int upVotes = post.getUpvotes().split(";").length;
+		int downVotes = post.getDownvotes().split(";").length;
+		return upVotes - downVotes;
 	}
 }
