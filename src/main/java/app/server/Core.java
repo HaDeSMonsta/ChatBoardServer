@@ -12,15 +12,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Set;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class Core {
 	private static final Set<String> keys = Collections.synchronizedSet(new HashSet<>());
 	private final String KEYS_PATH = "/userdata/authenticationKeys.txt";
-	private static final int SLEEP_MINS = Integer.parseInt(System.getenv("SLEEP_MINS"));
+	private static final int PORT = Integer.parseInt(System.getenv("PORT"));
+	private static final long NUM_SCAN_MIN_INTVL = Integer.parseInt(System.getenv("NUM_SCAN_MIN_INTVL")) * 1_000L;
 	private final Logger logger = LogManager.getLogger(Core.class);
 
 	@SneakyThrows
@@ -29,16 +30,12 @@ public class Core {
 
 		// Create a new thread that continuously reads authentication keys.
 		new Thread(() -> {
-			while(true) {
-				readKeys();
-			}
+			logger.info("Started Thread to read Matr. nums");
+			while(true) readKeys();
 		}).start();
 
-		Thread.sleep(500);
-		System.out.println("Waited");
-		printSet();
-
-		try (ServerSocket server = new ServerSocket(8080)) {
+		try (ServerSocket server = new ServerSocket(PORT)) {
+			logger.info("Server is listening on port: " + PORT);
 
 			while(true) {
 				Socket sock = server.accept();
@@ -53,7 +50,7 @@ public class Core {
 	}
 
 	private static void printSet() {
-		synchronized (keys) {
+		synchronized(keys) {
 			for(String key : keys) System.out.println(key);
 		}
 	}
@@ -66,18 +63,19 @@ public class Core {
 	 * @return true if the key exists, false otherwise
 	 */
 	boolean containsKey(String key) {
-		synchronized (keys) {
+		synchronized(keys) {
 			return keys.contains(key);
 		}
 	}
 
 	/**
-	 * Reads authentication keys from a file and stores them in a HashSet for future use.
-	 * If an IOException occurs while reading the file, a RuntimeException is thrown.
-	 * After reading the keys, the method sleeps for 30 minutes before finishing.
+	 * Reads the authentication keys from a file and updates the set of keys.
+	 * The method is scheduled to run at a fixed interval specified by the "SLEEP_INTVL_MS" property.
 	 */
-	@Scheduled(fixedDelayString = "${SLEEP_MINS * 60000")
-	private void readKeys() {
+	// Didn't work, let's ignore it for now
+	// @Scheduled(fixedDelayString = "${SLEEP_INTVL_MS}")
+	public void readKeys() {
+		logger.info("Reading MatNums");
 		Set<String> temp = new HashSet<>();
 		try (BufferedReader reader = new BufferedReader(new FileReader(KEYS_PATH))) {
 
@@ -88,9 +86,15 @@ public class Core {
 			logger.error(e.getMessage());
 			System.exit(1);
 		}
-		synchronized (keys) {
+		synchronized(keys) {
 			keys.clear();
 			keys.addAll(temp);
+		}
+		logger.debug(String.format("Sleeping for %d Minutes now", NUM_SCAN_MIN_INTVL));
+		try {
+			Thread.sleep(NUM_SCAN_MIN_INTVL);
+		} catch(InterruptedException e) {
+			logger.error("Matr Scanner was interrupted in sleep");
 		}
 	}
 }
