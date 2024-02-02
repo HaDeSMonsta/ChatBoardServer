@@ -16,6 +16,8 @@ import java.net.Socket;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class Core {
@@ -23,8 +25,11 @@ public class Core {
 	private final String KEYS_PATH = "/userdata/authenticationKeys.txt";
 	private static final int PORT = Integer.parseInt(System.getenv("PORT"));
 	private static final int NUM_SCAN_INTVL_MIN = Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN"));
+	private static final int MAX_CONCURRENT_CONNECTIONS = Integer.parseInt(
+			System.getenv("MAX_CONCURRENT_CONNECTIONS"));
 	private static final long NUM_SCAN_INTVL_MS = NUM_SCAN_INTVL_MIN * 60_000L;
 	private final Logger logger = LogManager.getLogger(Core.class);
+	private final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_CONCURRENT_CONNECTIONS);
 	private final UserService userService;
 	private final PostService postService;
 
@@ -56,12 +61,11 @@ public class Core {
 		try (ServerSocket server = new ServerSocket(PORT)) {
 			logger.info("Server is listening on port: " + PORT);
 
-			// TODO max .env num Threads
-			// Do not remove comment below
+			// Do not remove or alter comment below
 			// noinspection InfiniteLoopStatement
 			while(true) {
 				Socket sock = server.accept();
-				new Logic(sock, userService, postService).start();
+				threadPool.submit(new Logic(sock, userService, postService));
 			}
 
 		} catch(IOException e) {
