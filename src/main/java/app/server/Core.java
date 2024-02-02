@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 
 @Service
 public class Core {
-	private static final Set<String> keys = Collections.synchronizedSet(new HashSet<>());
+	private static final Set<String> keys = new HashSet<>();
 	private final String KEYS_PATH = "/userdata/authenticationKeys.txt";
 	private static final int PORT = Integer.parseInt(System.getenv("PORT"));
 	private static final int NUM_SCAN_INTVL_MIN = Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN"));

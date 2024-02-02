@@ -19,7 +19,7 @@ public class Logic extends Thread {
 	private static final int SESSION_SECS = Integer.parseInt(System.getenv("SESSION_SECS"));
 	private static final long SESSION_MS = SESSION_SECS * 1_000L;
 	private static final int MAX_BUFFER_SIZE = Integer.parseInt(System.getenv("MAX_BUFFER_SIZE"));
-	private static final Set<String> activeKeys = new HashSet<>();
+	private static final Set<String> activeKeys = Collections.synchronizedSet(new HashSet<>());
 	private final Logger logger = LogManager.getLogger(Logic.class);
 	private final Socket sock;
 	private final UserService userService;
