@@ -8,7 +8,7 @@ WORKDIR /home/gradle/project
 COPY --chown=gradle:gradle . /home/gradle/project
 
 # Run the gradle build
-RUN gradle build --no-daemon
+RUN gradle bootJar --no-daemon
 
 # Use OpenJDK for runtime
 FROM openjdk:17
@@ -17,7 +17,8 @@ FROM openjdk:17
 WORKDIR /app
 
 # Copy the jar file from the builder to the current location
-COPY --from=build /home/gradle/project/build/libs/*.jar ./ChatBoardServer_new.jar
+COPY --from=build /home/gradle/project/build/libs/ChatBoardServer_new.jar ./ChatBoardServer_new.jar
 
-# Run the jar file
-CMD ["java", "-jar", "./ChatBoardServer_new.jar"]
+# Copy the wait_for_me.sh script
+COPY ./wait_for_it.sh /wait_for_it.sh
+RUN chmod 770 /wait_for_it.sh

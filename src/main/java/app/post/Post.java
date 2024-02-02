@@ -1,6 +1,6 @@
-package database.post;
+package app.post;
 
-import database.user.User;
+import app.user.User;
 import lombok.Data;
 
 import javax.persistence.*;

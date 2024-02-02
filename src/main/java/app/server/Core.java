@@ -1,4 +1,4 @@
-package server;
+package app.server;
 
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +12,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.time.Duration;
 import java.util.Set;
 import java.util.Collections;
 import java.util.HashSet;

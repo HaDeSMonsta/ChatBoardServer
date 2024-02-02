@@ -28,7 +28,11 @@ dependencies {
 val jarName = "ChatBoardServer"
 val jarVersion = "0.0.1"
 
-tasks.jar {
+springBoot {
+    mainClass.set("app.Entrypoint")
+}
+
+/*tasks.jar {
 
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
@@ -42,7 +46,7 @@ tasks.jar {
         .get()
         .map { zipTree(it) }
     from(dependencies)
-}
+}*/
 
 tasks.test {
     useJUnitPlatform()
