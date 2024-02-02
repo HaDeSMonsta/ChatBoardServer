@@ -1,6 +1,7 @@
 package app.database.user;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class UserController {
 	}
 
 	@GetMapping("/{id}")
-	public User getUser(@PathVariable Long id) {
+	public Optional<User> getUser(@PathVariable Long id) {
 		return userService.getUserById(id);
 	}
 

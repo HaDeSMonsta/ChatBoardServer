@@ -1,5 +1,7 @@
 package app.server;
 
+import app.database.post.Post;
+import app.database.post.PostService;
 import app.database.user.User;
 import app.database.user.UserService;
 import lombok.SneakyThrows;
@@ -28,11 +30,13 @@ public class Core {
 	private static final long NUM_SCAN_INTVL_MS =
 			Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN")) * 60_000L;
 	private final Logger logger = LogManager.getLogger(Core.class);
-	private final UserService service;
+	private final UserService userService;
+	private final PostService postService;
 
 	@Autowired
-	public Core(UserService service) {
-		this.service = service;
+	public Core(UserService userService, PostService postService) {
+		this.userService = userService;
+		this.postService = postService;
 	}
 
 	@SneakyThrows
@@ -45,10 +49,14 @@ public class Core {
 		}).start();
 
 		logger.info("Calling creation method");
-		service.createAndSafeUser("Hades", 13135);
+		userService.clearUsers();
+		postService.clearPosts();
+		User user = userService.createAndSafeUser("Hades", 13135);
 		logger.info("Creation method is over");
+		postService.createAndSavePost("Testpost", user);
 
-		for(User u : service.getAllUsers()) System.out.println(u);
+		for(User u : userService.getAllUsers()) System.out.println(u);
+		for(Post p : postService.getAllPosts()) System.out.println(p);
 
 
 		/*try (ServerSocket server = new ServerSocket(PORT)) {
