@@ -26,7 +26,7 @@ public class UserService {
 	}
 
 	public synchronized Optional<User> getUserByName(String name) {
-		List<User> users = getAllUsers();
+		List<User> users = userRepository.findAll();
 		for(User u : users) if(u.getName().equals(name)) return Optional.of(u);
 		return Optional.empty();
 	}
@@ -48,15 +48,11 @@ public class UserService {
 	}
 
 	public synchronized User createAndSafeUser(String name, int secNum) {
-		logger.info("Beginning insertion method");
 		User u = new User();
 		u.setName(name);
 		u.setSecNum(secNum);
 		u.setBlocked(false);
-		logger.info("Inserting");
-		User created = saveUser(u);
-		logger.info("Inserted");
-		return created;
+		return saveUser(u);
 	}
 
 }

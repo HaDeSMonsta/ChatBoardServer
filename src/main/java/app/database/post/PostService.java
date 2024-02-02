@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -47,6 +46,8 @@ public class PostService {
 		Post p = new Post();
 		p.setAuthor(author);
 		p.setContent(contend);
+		p.setUpvotes("");
+		p.setDownvotes("");
 		return createPost(p);
 	}
 
@@ -58,6 +59,7 @@ public class PostService {
 	}
 
 	public synchronized void downVote(User user, Post post) {
+
 		post.setDownvotes(
 				String.format("%s;%s", post.getDownvotes(), user.getName())
 		);
@@ -65,18 +67,13 @@ public class PostService {
 	}
 
 	/**
-	 * Retrieves a specified amount of posts written by a certain user.
+	 * Returns a list of posts with a specified limit.
 	 *
-	 * @param username the username of the user
-	 * @param limit    the maximum number of posts to retrieve
-	 *
-	 * @return a unmutable list of posts written by the user, up to the specified limit
+	 * @param limit the maximum number of posts to return
+	 * @return a list of posts with the specified limit
 	 */
-	public synchronized List<Post> getAmountOfPostByUsername(String username, int limit) {
-		List<Post> posts = getAllPosts()
-				.stream()
-				.filter(p -> p.getAuthor().getName().equals(username))
-				.collect(Collectors.toList());
+	public synchronized List<Post> getAmountOfPosts(int limit) {
+		List<Post> posts = getAllPosts();
 		Collections.shuffle(posts);
 		return posts
 				.stream()
@@ -85,8 +82,18 @@ public class PostService {
 	}
 
 	public synchronized int getVotes(Post post) {
-		int upVotes = post.getUpvotes().split(";").length;
-		int downVotes = post.getDownvotes().split(";").length;
-		return upVotes - downVotes;
+		int upvotes = 0;
+		int downvotes = 0;
+
+		try {
+			upvotes = post.getUpvotes().split(";").length;
+		} catch(NullPointerException ignored) {
+		}
+
+		try {
+			downvotes = post.getDownvotes().split(";").length;
+		} catch(NullPointerException ignored) {
+		}
+		return upvotes - downvotes;
 	}
 }

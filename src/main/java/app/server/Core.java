@@ -1,6 +1,5 @@
 package app.server;
 
-import app.database.post.Post;
 import app.database.post.PostService;
 import app.database.user.User;
 import app.database.user.UserService;
@@ -23,8 +22,8 @@ public class Core {
 	private static final Set<String> keys = Collections.synchronizedSet(new HashSet<>());
 	private final String KEYS_PATH = "/userdata/authenticationKeys.txt";
 	private static final int PORT = Integer.parseInt(System.getenv("PORT"));
-	private static final long NUM_SCAN_INTVL_MS =
-			Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN")) * 60_000L;
+	private static final int NUM_SCAN_INTVL_MIN = Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN"));
+	private static final long NUM_SCAN_INTVL_MS = NUM_SCAN_INTVL_MIN * 60_000L;
 	private final Logger logger = LogManager.getLogger(Core.class);
 	private final UserService userService;
 	private final PostService postService;
@@ -36,28 +35,29 @@ public class Core {
 	}
 
 	public void start() {
+		// Without this the database might be empty and gets won't work
+		User u = new User();
+		try {
+			u = userService.createAndSafeUser("ABC", 123);
+		} catch(Exception ignored) {
+		}
+
+		try {
+			postService.createAndSavePost(u, "");
+		} catch(Exception ignored) {
+		}
 
 		// Create a new thread that continuously reads authentication keys.
 		new Thread(() -> {
 			logger.info("Started Thread to read Matr. nums");
 			while(true) readKeys();
-		}).start();
-
-		logger.info("Calling creation method");
-		postService.clearPosts();
-		userService.clearUsers();
-		User user = userService.createAndSafeUser("Hades", 13135);
-		logger.info("Creation method is over");
-		postService.createAndSavePost(user, "Testpost");
-
-		for(User u : userService.getAllUsers()) System.out.println(u);
-		for(Post p : postService.getAllPosts()) System.out.println(p);
-
+		}, "KeyReader").start();
 
 		try (ServerSocket server = new ServerSocket(PORT)) {
 			logger.info("Server is listening on port: " + PORT);
 
 			// TODO max .env num Threads
+			// Do not remove comment below
 			// noinspection InfiniteLoopStatement
 			while(true) {
 				Socket sock = server.accept();
@@ -112,7 +112,7 @@ public class Core {
 			keys.clear();
 			keys.addAll(temp);
 		}
-		logger.info(String.format("Sleeping for %d Minutes now", NUM_SCAN_INTVL_MS));
+		logger.info(String.format("Sleeping for %d Minutes now", NUM_SCAN_INTVL_MIN));
 		try {
 			Thread.sleep(NUM_SCAN_INTVL_MS);
 		} catch(InterruptedException e) {

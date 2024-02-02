@@ -12,9 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @RequiredArgsConstructor
 public class Logic extends Thread {
@@ -25,6 +26,7 @@ public class Logic extends Thread {
 	private final Socket sock;
 	private final UserService userService;
 	private final PostService postService;
+	private int sessionId = -1;
 
 	@Override
 	public void run() {
@@ -46,7 +48,7 @@ public class Logic extends Thread {
 
 			final String authKey = readStream(in);
 
-			Thread.sleep(SESSION_MS); // Why???
+			Thread.sleep(2_000); // Why???
 
 			if(!Core.containsKey(authKey)) {
 				logger.info("Invalid authentication was tried, key was: " + authKey);
@@ -58,44 +60,70 @@ public class Logic extends Thread {
 				writeStream(out, "Authentication Ok");
 			}
 
-			int sessionID = -1;
 			try {
-				sessionID = Integer.parseInt(authKey);
+				sessionId = Integer.parseInt(authKey);
 			} catch(NumberFormatException nfe) {
 				logger.error("Unable to parse Key to int: " + authKey);
 			}
 
 			final String request = readStream(in);
-			logger.info(String.format("Session %d: Got request: %s", sessionID, request));
 
 			String answer = "Invalid request";
 			if(!request.isBlank()) {
 				String[] requestParts = request.split(" ");
 				answer = switch(requestParts[0]) {
-					case "0" -> registerUser(requestParts);
-					case "1" -> unblockUser(requestParts);
-					case "2" -> createPost(requestParts);
-					case "3" -> deletePost(requestParts);
-					case "4" -> votePost(requestParts);
-					case "5" -> getBoard(requestParts);
+					case "0" -> {
+						logger.info(String.format("Method called: \"%s\" with parameters: %s", "registerUser",
+								Arrays.toString(requestParts)));
+						yield registerUser(requestParts);
+					}
+					case "1" -> {
+						logger.info(String.format("Method called: \"%s\" with parameters: %s", "unblockUser",
+								Arrays.toString(requestParts)));
+						yield unblockUser(requestParts);
+					}
+					case "2" -> {
+						logger.info(String.format("Method called: \"%s\" with parameters: %s", "createPost",
+								Arrays.toString(requestParts)));
+						yield createPost(requestParts);
+					}
+					case "3" -> {
+						logger.info(String.format("Method called: \"%s\" with parameters: %s", "deletePost",
+								Arrays.toString(requestParts)));
+						yield deletePost(requestParts);
+					}
+					case "4" -> {
+						logger.info(String.format("Method called: \"%s\" with parameters: %s", "votePost",
+								Arrays.toString(requestParts)));
+						yield votePost(requestParts);
+					}
+					case "5" -> {
+						logger.info(String.format("Method called: \"%s\" with parameters: %s", "getBoard",
+								Arrays.toString(requestParts)));
+						yield getBoard(requestParts);
+					}
 					default -> request;
 				};
 			}
 
 			writeStream(out, answer);
 			String toLog = answer.length() > 40 ? answer.substring(0, 40) + "..." : answer;
-			logger.info(String.format("Session %d, answered: %s", sessionID, toLog));
+			logger.info(String.format("Session %d, answered: %s", sessionId, toLog));
 
 		} catch(IOException e) {
-			logger.error("Error: ", e);
+			logger.error("Error: " + e.getMessage());
+			e.printStackTrace();
 		} catch(InterruptedException e) {
-			logger.error("Sleep interrupted: ", e);
+			logger.error("Sleep interrupted: " + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			logger.info(String.format("Session %d, closed", sessionId));
 		}
 	}
 
 	private String registerUser(String[] request) {
 		if(request.length != 3) return "Invalid request, three parts needed for register";
-		String userName = request[1];
+		String name = request[1];
 		int secNum;
 		try {
 			secNum = Integer.parseInt(request[2]);
@@ -103,9 +131,14 @@ public class Logic extends Thread {
 			return String.format("%s is not a valid int", request[2]);
 		}
 
-		// TODO Check for already existing users and too long names
-		User user = userService.createAndSafeUser(userName, secNum);
-		return String.format("Created User with Name %s and Security number %d", userName, secNum);
+		if(name.length() > 255) return "Name is too long";
+
+		if(userService.getUserByName(name).isPresent()) {
+			return String.format("User with name %s already exists", name);
+		}
+
+		User user = userService.createAndSafeUser(name, secNum);
+		return String.format("Created User with Name %s and Security number %d", user.getName(), user.getSecNum());
 	}
 
 	private String unblockUser(String[] request) {
@@ -121,6 +154,7 @@ public class Logic extends Thread {
 		Optional<User> option = userService.getUserByName(userName);
 		User user;
 		if(option.isPresent() && (user = option.get()).getSecNum() == secNum) {
+			if(!user.getBlocked()) return String.format("User %s is not blocked", user.getName());
 			user.setBlocked(false);
 			return "Unblocked user " + userName;
 		}
@@ -129,6 +163,17 @@ public class Logic extends Thread {
 	}
 
 	private String createPost(String[] request) {
+
+		// Text can have whitespace
+		if(request.length > 4) {
+			StringBuilder builder = new StringBuilder();
+			for(String s : request) builder.append(s).append(" ");
+			request = builder
+					.toString()
+					.trim()
+					.split(" ", 4);
+		}
+
 		if(request.length != 4) return "Invalid request, four parts needed for createPost";
 
 		User user;
@@ -150,6 +195,8 @@ public class Logic extends Thread {
 			user.setBlocked(true);
 			return "Invalid Security number, blocked User " + name;
 		}
+
+		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
 
 		Post post = postService.createAndSavePost(user, text);
 
@@ -178,6 +225,8 @@ public class Logic extends Thread {
 			user.setBlocked(true);
 			return "Invalid Security number, blocked User " + name;
 		}
+
+		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
 
 		try {
 			postId = Long.parseLong(request[3]);
@@ -215,6 +264,8 @@ public class Logic extends Thread {
 			return "Invalid Security number, blocked User " + name;
 		}
 
+		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
+
 		try {
 			postId = Long.parseLong(request[3]);
 		} catch(NumberFormatException nfe) {
@@ -226,12 +277,39 @@ public class Logic extends Thread {
 
 		Post post = postOption.get();
 
+
 		switch(vote.toLowerCase()) {
 			case "up" -> {
+
+				List<String> upvotes = new ArrayList<>();
+				List<String> downvotes = new ArrayList<>();
+				try {
+					upvotes = Arrays.stream(post.getUpvotes().split(";")).toList();
+				} catch(NullPointerException ignored) {
+				}
+				try {
+					downvotes = Arrays.stream(post.getDownvotes().split(";")).toList();
+				} catch(NullPointerException ignored) {
+				}
+				if(upvotes.contains(name) || downvotes.contains(name)) return "Already voted on Post";
+
 				postService.upVote(user, post);
 				return "Successfully upvoted post " + post.getId();
 			}
 			case "down" -> {
+
+				List<String> upvotes = new ArrayList<>();
+				List<String> downvotes = new ArrayList<>();
+				try {
+					upvotes = Arrays.stream(post.getUpvotes().split(";")).toList();
+				} catch(NullPointerException ignored) {
+				}
+				try {
+					downvotes = Arrays.stream(post.getDownvotes().split(";")).toList();
+				} catch(NullPointerException ignored) {
+				}
+				if(upvotes.contains(name) || downvotes.contains(name)) return "Already voted on Post";
+
 				postService.downVote(user, post);
 				return "Successfully downvoted post " + post.getId();
 			}
@@ -267,7 +345,9 @@ public class Logic extends Thread {
 			return String.format("Invalid Security number %d for User %s, User blocked", secNum, name);
 		}
 
-		List<Post> posts = postService.getAmountOfPostByUsername(name, limit);
+		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
+
+		List<Post> posts = postService.getAmountOfPosts(limit);
 		if(posts.isEmpty()) return "No posts found";
 
 		StringBuilder builder = new StringBuilder();
@@ -289,10 +369,14 @@ public class Logic extends Thread {
 			buffer[index++] = read;
 		}
 
-		return new String(buffer, 0, index);
+		String request = new String(buffer, 0, index);
+		logger.info(String.format("Session %d, got request: %s", sessionId, request));
+
+		return request;
 	}
 
 	private void writeStream(OutputStream out, String payload) throws IOException {
+		logger.info(String.format("Session %d, sending: %s", sessionId, payload));
 		out.write(payload.getBytes());
 		out.write(-1);
 		out.flush();
