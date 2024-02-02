@@ -1,5 +1,4 @@
 package app.server;
-// TODO Save (un-)blocking status
 
 import app.database.post.Post;
 import app.database.post.PostService;
@@ -65,6 +64,9 @@ public class Logic extends Thread {
 				sessionId = Integer.parseInt(authKey);
 			} catch(NumberFormatException nfe) {
 				logger.error("Unable to parse Key to int: " + authKey);
+				logger.info("This should never happen, check authenticationKeys.txt for wrong entries");
+				writeStream(out, "Error should not be reachable, please submit a bug report");
+				return;
 			}
 
 			final String request = readStream(in);
@@ -113,10 +115,8 @@ public class Logic extends Thread {
 
 		} catch(IOException e) {
 			logger.error("Error: " + e.getMessage());
-			e.printStackTrace();
 		} catch(InterruptedException e) {
 			logger.error("Sleep interrupted: " + e.getMessage());
-			e.printStackTrace();
 		} finally {
 			logger.info(String.format("Session %d, closed", sessionId));
 		}
@@ -156,7 +156,7 @@ public class Logic extends Thread {
 		User user;
 		if(option.isPresent() && (user = option.get()).getSecNum() == secNum) {
 			if(!user.getBlocked()) return String.format("User %s is not blocked", user.getName());
-			user.setBlocked(false);
+			userService.setBlockStatus(user, false);
 			return "Unblocked user " + userName;
 		}
 
@@ -193,7 +193,7 @@ public class Logic extends Thread {
 		}
 
 		if(user.getSecNum() != secNum) {
-			user.setBlocked(true);
+			userService.setBlockStatus(user, true);
 			return "Invalid Security number, blocked User " + name;
 		}
 
@@ -223,7 +223,7 @@ public class Logic extends Thread {
 		}
 
 		if(user.getSecNum() != secNum) {
-			user.setBlocked(true);
+			userService.setBlockStatus(user, true);
 			return "Invalid Security number, blocked User " + name;
 		}
 
@@ -261,7 +261,7 @@ public class Logic extends Thread {
 		}
 
 		if(user.getSecNum() != secNum) {
-			user.setBlocked(true);
+			userService.setBlockStatus(user, true);
 			return "Invalid Security number, blocked User " + name;
 		}
 
@@ -342,7 +342,7 @@ public class Logic extends Thread {
 		user = option.get();
 
 		if(!(user.getSecNum() == secNum)) {
-			user.setBlocked(true);
+			userService.setBlockStatus(user, true);
 			return String.format("Invalid Security number %d for User %s, User blocked", secNum, name);
 		}
 
