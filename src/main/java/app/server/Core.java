@@ -3,7 +3,6 @@ package app.server;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -21,7 +20,8 @@ public class Core {
 	private static final Set<String> keys = Collections.synchronizedSet(new HashSet<>());
 	private final String KEYS_PATH = "/userdata/authenticationKeys.txt";
 	private static final int PORT = Integer.parseInt(System.getenv("PORT"));
-	private static final long NUM_SCAN_MIN_INTVL = Integer.parseInt(System.getenv("NUM_SCAN_MIN_INTVL")) * 1_000L;
+	private static final long NUM_SCAN_INTVL_MS =
+			Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN")) * 60_000L;
 	private final Logger logger = LogManager.getLogger(Core.class);
 
 	@SneakyThrows
@@ -37,6 +37,8 @@ public class Core {
 		try (ServerSocket server = new ServerSocket(PORT)) {
 			logger.info("Server is listening on port: " + PORT);
 
+			// TODO Max active session count
+			// noinspection InfiniteLoopStatement
 			while(true) {
 				Socket sock = server.accept();
 				new Logic(sock).start();
@@ -90,9 +92,9 @@ public class Core {
 			keys.clear();
 			keys.addAll(temp);
 		}
-		logger.debug(String.format("Sleeping for %d Minutes now", NUM_SCAN_MIN_INTVL));
+		logger.info(String.format("Sleeping for %d Minutes now", NUM_SCAN_INTVL_MS));
 		try {
-			Thread.sleep(NUM_SCAN_MIN_INTVL);
+			Thread.sleep(NUM_SCAN_INTVL_MS);
 		} catch(InterruptedException e) {
 			logger.error("Matr Scanner was interrupted in sleep");
 		}

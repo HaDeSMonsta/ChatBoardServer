@@ -22,8 +22,8 @@ public class Logic extends Thread {
 
 	@Override
 	public void run() {
-		final int sessionID = random.nextInt(1_000);
-		logger.debug("Starting session " + sessionID);
+		final int sessionID = random.nextInt(1_000); // TODO session id = matr num
+		logger.info("Starting session " + sessionID);
 
 		try (InputStream in = sock.getInputStream(); OutputStream out = sock.getOutputStream()) {
 
@@ -44,12 +44,12 @@ public class Logic extends Thread {
 			Thread.sleep(SESSION_MS); // Why???
 
 			if(!core.containsKey(authKey)) {
-				logger.debug("Invalid authentication was tried, key was: " + authKey);
-				logger.debug(String.format("Session %d ended", sessionID));
+				logger.info("Invalid authentication was tried, key was: " + authKey);
+				logger.info(String.format("Session %d ended", sessionID));
 				writeStream(out, "Invalid authentication");
 				return;
 			} else {
-				logger.debug(String.format("Authentication %s Ok, Session %d will begin", authKey, sessionID));
+				logger.info(String.format("Authentication %s Ok, Session %d will begin", authKey, sessionID));
 				writeStream(out, "Authentication Ok");
 			}
 
@@ -71,12 +71,12 @@ public class Logic extends Thread {
 
 			writeStream(out, answer);
 			String toLog = answer.length() > 40 ? answer.substring(0, 40) + "..." : answer;
-			logger.debug(String.format("Session %d, answered: %s", sessionID, toLog));
+			logger.info(String.format("Session %d, answered: %s", sessionID, toLog));
 
 		} catch(IOException e) {
 			logger.error("Error: ", e);
 		} catch(InterruptedException e) {
-			logger.warn("Sleep interrupted: ", e);
+			logger.error("Sleep interrupted: ", e);
 		}
 	}
 
