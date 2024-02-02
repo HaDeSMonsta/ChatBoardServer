@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -115,17 +114,41 @@ public class Logic extends Thread {
 		}
 
 		Optional<User> option = userService.getUserByName(userName);
-		if(option.isPresent() && option.get().getSecNum() == secNum) {
-			String toReturn = userService.setBlock(userName, false) ?
-					"Successfully unblocked user " : "Unable to unblock user ";
-			return toReturn + userName;
+		User user;
+		if(option.isPresent() && (user = option.get()).getSecNum() == secNum) {
+			user.setBlocked(false);
+			return "Unblocked user " + userName;
 		}
 
 		return "Invalid user credentials";
 	}
 
 	private String createPost(String[] request) {
-		return "Default create post";
+		if(request.length != 4) return "Invalid request, four parts needed for createPost";
+
+		User user;
+		String name = request[1];
+		int secNum;
+		String text = request[3];
+		Optional<User> option = userService.getUserByName(name);
+
+		if(option.isEmpty()) return "Invalid username, user does not exist";
+		user = option.get();
+
+		try {
+			secNum = Integer.parseInt(request[2]);
+		} catch(NumberFormatException nfe) {
+			return String.format("%s is not a valid int", request[2]);
+		}
+
+		if(user.getSecNum() != secNum) {
+			user.setBlocked(true);
+			return "Invalid Security number, blocked User " + name;
+		}
+
+		Post post = postService.createAndSavePost(user, text);
+
+		return String.format("Created Post with ID %d", post.getId());
 	}
 
 	private String deletePost(String[] request) {
@@ -158,7 +181,7 @@ public class Logic extends Thread {
 		user = option.get();
 
 		if(!(user.getSecNum() == secNum)) {
-			userService.setBlock(name, true);
+			user.setBlocked(true);
 			return String.format("Invalid Security number %d for User %s, User blocked", secNum, name);
 		}
 

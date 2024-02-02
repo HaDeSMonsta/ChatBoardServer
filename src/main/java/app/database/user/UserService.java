@@ -59,20 +59,4 @@ public class UserService {
 		return created;
 	}
 
-	/**
-	 * Sets the block status of a user.
-	 *
-	 * @param userName     the name of the user
-	 * @param blockStatus  the desired block status (true if blocked, false if unblocked)
-	 * @return true if the block status is successfully set, false otherwise
-	 */
-	public synchronized boolean setBlock(String userName, boolean blockStatus) {
-		Optional<User> option = getUserByName(userName);
-		if(option.isEmpty()) return false;
-
-		User user = option.get();
-		user.setBlocked(blockStatus);
-		return true;
-	}
-
 }

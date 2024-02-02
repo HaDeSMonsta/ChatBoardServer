@@ -43,10 +43,10 @@ public class PostService {
 		postRepository.deleteAll();
 	}
 
-	public synchronized Post createAndSavePost(String contend, User author) {
+	public synchronized Post createAndSavePost(User author, String contend) {
 		Post p = new Post();
-		p.setContent(contend);
 		p.setAuthor(author);
+		p.setContent(contend);
 		return createPost(p);
 	}
 
