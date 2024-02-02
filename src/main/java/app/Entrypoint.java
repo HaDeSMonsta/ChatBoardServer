@@ -1,12 +1,15 @@
 package app;
 
+import app.server.Admin;
+import app.server.Core;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import app.server.Core;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 @SpringBootApplication
 public class Entrypoint {
@@ -15,14 +18,20 @@ public class Entrypoint {
 	}
 
 	private final Core core;
+	private final Admin admin;
 
 	@Autowired
-	public Entrypoint(Core core) {
+	public Entrypoint(Core core, Admin admin) {
 		this.core = core;
+		this.admin = admin;
 	}
 
 	@PostConstruct
 	public void init() {
-		core.start();
+		ThreadFactory coreThreadFactory = runnable -> new Thread(runnable, "core");
+		ThreadFactory adminThreadFactory = runnable -> new Thread(runnable, "admin");
+
+		CompletableFuture.runAsync(core::start, Executors.newSingleThreadExecutor(coreThreadFactory));
+		CompletableFuture.runAsync(admin::start, Executors.newSingleThreadExecutor(adminThreadFactory));
 	}
 }

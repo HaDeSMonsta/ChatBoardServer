@@ -1,6 +1,5 @@
 package app.server;
 
-import app.database.post.Post;
 import app.database.post.PostService;
 import app.database.user.User;
 import app.database.user.UserService;
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +23,7 @@ import java.util.concurrent.Executors;
 public class Core {
 	private static final Set<String> keys = new HashSet<>();
 	private final String KEYS_PATH = "/userdata/authenticationKeys.txt";
-	private static final int PORT = Integer.parseInt(System.getenv("PORT"));
+	private static final int PORT = Integer.parseInt(System.getenv("MAIN_PORT"));
 	private static final int NUM_SCAN_INTVL_MIN = Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN"));
 	private static final int MAX_CONCURRENT_CONNECTIONS = Integer.parseInt(
 			System.getenv("MAX_CONCURRENT_CONNECTIONS"));
