@@ -152,11 +152,88 @@ public class Logic extends Thread {
 	}
 
 	private String deletePost(String[] request) {
-		return "Default delete post";
+		if(request.length != 4) return "Invalid request, four parts required for deletePost";
+
+		User user;
+		String name = request[1];
+		Optional<User> option = userService.getUserByName(name);
+		int secNum;
+		Long postId;
+
+		if(option.isEmpty()) return "Invalid username, user does not exist";
+		user = option.get();
+
+		try {
+			secNum = Integer.parseInt(request[2]);
+		} catch(NumberFormatException nfe) {
+			return String.format("%s is not a valid int", request[2]);
+		}
+
+		if(user.getSecNum() != secNum) {
+			user.setBlocked(true);
+			return "Invalid Security number, blocked User " + name;
+		}
+
+    	try {
+    		postId = Long.parseLong(request[3]);
+    	} catch(NumberFormatException nfe) {
+    		return String.format("%s is not a valid long", request[3]);
+    	}
+
+		if(postService.getPostById(postId).isEmpty()) return String.format("No Post with ID %d found", postId);
+
+    	postService.deletePost(postId);
+    	return String.format("Deleted Post with ID %d", postId);
 	}
 
 	private String votePost(String[] request) {
-		return "Default vote post";
+		if(request.length != 5) return "Invalid request, five parts needed for votePost";
+
+    	User user;
+    	String name = request[1];
+    	Optional<User> option = userService.getUserByName(name);
+    	int secNum;
+    	Long postId;
+		String vote = request[4];
+
+    	if(option.isEmpty()) return "Invalid username, user does not exist";
+    	user = option.get();
+
+    	try {
+    		secNum = Integer.parseInt(request[2]);
+    	} catch(NumberFormatException nfe) {
+    		return String.format("%s is not a valid int", request[2]);
+    	}
+
+    	if(user.getSecNum() != secNum) {
+    		user.setBlocked(true);
+    		return "Invalid Security number, blocked User " + name;
+    	}
+
+    	try {
+    		postId = Long.parseLong(request[3]);
+    	} catch(NumberFormatException nfe) {
+    		return String.format("%s is not a valid long", request[3]);
+    	}
+
+    	Optional<Post> postOption = postService.getPostById(postId);
+    	if(postOption.isEmpty()) return String.format("No Post with ID %d found", postId);
+
+    	Post post = postOption.get();
+
+		switch(vote.toLowerCase()) {
+			case "up" -> {
+				postService.upVote(user, post);
+				return "Successfully upvoted post " + post.getId();
+			}
+			case "down" -> {
+				postService.downVote(user, post);
+				return "Successfully downvoted post " + post.getId();
+			}
+			default -> {
+				return  String.format("Invalid vote option (up/down): " + vote);
+			}
+		}
 	}
 
 	private String getBoard(String[] request) {

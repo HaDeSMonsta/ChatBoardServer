@@ -48,7 +48,7 @@ public class Core {
 		postService.clearPosts();
 		User user = userService.createAndSafeUser("Hades", 13135);
 		logger.info("Creation method is over");
-		postService.createAndSavePost("Testpost", user);
+		postService.createAndSavePost(user, "Testpost");
 
 		for(User u : userService.getAllUsers()) System.out.println(u);
 		for(Post p : postService.getAllPosts()) System.out.println(p);

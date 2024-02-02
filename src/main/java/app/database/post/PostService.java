@@ -50,23 +50,17 @@ public class PostService {
 		return createPost(p);
 	}
 
-	public synchronized boolean upVote(String userName, Long id) {
-		Optional<Post> option = getPostById(id);
-		if(option.isEmpty()) return false;
-		Post post = option.get();
+	public synchronized boolean upVote(User user, Post post) {
 		post.setUpvotes(
-				String.format("%s;%s", post.getUpvotes(), userName)
+				String.format("%s;%s", post.getUpvotes(), user.getName())
 		);
 		postRepository.save(post);
 		return true;
 	}
 
-	public synchronized boolean downVote(String userName, Long id) {
-		Optional<Post> option = getPostById(id);
-		if(option.isEmpty()) return false;
-		Post post = option.get();
+	public synchronized boolean downVote(User user, Post post) {
 		post.setDownvotes(
-				String.format("%s;%s", post.getDownvotes(), userName)
+				String.format("%s;%s", post.getDownvotes(), user.getName())
 		);
 		postRepository.save(post);
 		return true;
