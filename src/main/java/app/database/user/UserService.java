@@ -3,6 +3,7 @@ package app.database.user;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,12 +46,17 @@ public class UserService {
 		userRepository.deleteAll();
 	}
 
-	public synchronized User createAndSafeUser(String name, int secNum) {
-		User u = new User();
-		u.setName(name);
-		u.setSecNum(secNum);
-		u.setBlocked(false);
-		return saveUser(u);
+	public synchronized Optional<User> createAndSafeUser(String name, int secNum) {
+		try {
+			User u = new User();
+			u.setName(name);
+			u.setSecNum(secNum);
+			u.setBlocked(false);
+			return Optional.of(saveUser(u));
+		} catch(DataIntegrityViolationException dive) {
+			logger.error(dive.getMessage());
+			return Optional.empty();
+		}
 	}
 
 	public synchronized void setBlockStatus(User user, boolean status) {

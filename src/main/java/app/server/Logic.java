@@ -145,8 +145,12 @@ public class Logic extends Thread {
 			return String.format("User with name %s already exists", name);
 		}
 
-		User user = userService.createAndSafeUser(name, secNum);
-		return String.format("Created User with Name %s and Security number %d", user.getName(), user.getSecNum());
+		Optional<User> option = userService.createAndSafeUser(name, secNum);
+		if(option.isPresent()) {
+			User user = option.get();
+			return String.format("Created User with Name %s and Security number %d", user.getName(), user.getSecNum());
+		}
+		return String.format("User with name %s already exists", name);
 	}
 
 	private String unblockUser(String[] request) {

@@ -1,5 +1,6 @@
 package app.server;
 
+import app.database.post.Post;
 import app.database.post.PostService;
 import app.database.user.User;
 import app.database.user.UserService;
@@ -13,8 +14,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,16 +43,16 @@ public class Core {
 
 	public void start() {
 		// Without this the database might be empty and gets won't work
-		User u = new User();
-		try {
-			u = userService.createAndSafeUser("ABC", 123);
-		} catch(Exception ignored) {
-		}
+		String defName = "DEFAULT";
+		Optional<User> userOption = userService.createAndSafeUser(defName, 535449769);
 
-		try {
-			postService.createAndSavePost(u, "");
-		} catch(Exception ignored) {
-		}
+		// Do not remove or alter comment below
+		// noinspection OptionalGetWithoutIsPresent
+		User u = userOption.orElseGet(() -> userService.getUserByName(defName).get());
+		postService.createAndSavePost(u, "DEFAULT");
+		postService.distinctPosts(u);
+		// Now at least the user DEFAULT exists and has exactly one post
+
 
 		// Create a new thread that continuously reads authentication keys.
 		new Thread(() -> {
