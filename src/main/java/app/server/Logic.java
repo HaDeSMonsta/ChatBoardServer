@@ -12,16 +12,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 public class Logic extends Thread {
 	private static final int SESSION_SECS = Integer.parseInt(System.getenv("SESSION_SECS"));
 	private static final long SESSION_MS = SESSION_SECS * 1_000L;
 	private static final int MAX_BUFFER_SIZE = Integer.parseInt(System.getenv("MAX_BUFFER_SIZE"));
+	private static final Set<String> activeKeys = new HashSet<>();
 	private final Logger logger = LogManager.getLogger(Logic.class);
 	private final Socket sock;
 	private final UserService userService;
@@ -30,9 +28,9 @@ public class Logic extends Thread {
 
 	@Override
 	public void run() {
-		logger.info("Starting new session");
-
 		try (InputStream in = sock.getInputStream(); OutputStream out = sock.getOutputStream()) {
+
+			logger.info("Starting new session");
 
 			new Thread(() -> {
 				try {
@@ -55,6 +53,11 @@ public class Logic extends Thread {
 				logger.info("Session ended");
 				writeStream(out, "Invalid authentication");
 				return;
+			} else if(!activeKeys.add(authKey)) {
+				logger.info(String.format("Someone is trying to connect with Matrikel Numer %s while in use",
+						authKey));
+				writeStream(out, "Key is in use, connection closed");
+				return;
 			} else {
 				logger.info(String.format("Authentication %s Ok, Session will begin", authKey));
 				writeStream(out, "Authentication Ok");
@@ -68,6 +71,7 @@ public class Logic extends Thread {
 				writeStream(out, "Error should not be reachable, please submit a bug report");
 				return;
 			}
+
 
 			final String request = readStream(in);
 
@@ -117,7 +121,10 @@ public class Logic extends Thread {
 			logger.error("Error: " + e.getMessage());
 		} catch(InterruptedException e) {
 			logger.error("Sleep interrupted: " + e.getMessage());
+		} catch(Exception e) {
+			logger.error("Unknown exception occurred in Logic.run(): " + e.getMessage());
 		} finally {
+			activeKeys.remove(String.valueOf(sessionId));
 			logger.info(String.format("Session %d, closed", sessionId));
 		}
 	}
@@ -176,6 +183,7 @@ public class Logic extends Thread {
 		}
 
 		if(request.length != 4) return "Invalid request, four parts needed for createPost";
+		if(request[3].length() > 500) return "Text is too long";
 
 		User user;
 		String name = request[1];
