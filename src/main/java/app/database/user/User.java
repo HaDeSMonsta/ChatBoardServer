@@ -1,4 +1,4 @@
-package app.user;
+package app.database.user;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

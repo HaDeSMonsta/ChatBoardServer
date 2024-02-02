@@ -1,4 +1,4 @@
-package app.user;
+package app.database.user;
 
 import java.util.List;
 

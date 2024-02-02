@@ -1,8 +1,8 @@
-package app.post;
+package app.database.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 }
