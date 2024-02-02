@@ -148,7 +148,7 @@ public class Logic extends Thread {
 		Optional<User> option = userService.createAndSafeUser(name, secNum);
 		if(option.isPresent()) {
 			User user = option.get();
-			return String.format("Created User with Name %s and Security number %d", user.getName(), user.getSecNum());
+			return String.format("Created User with Name %s", user.getName());
 		}
 		return String.format("User with name %s already exists", name);
 	}
