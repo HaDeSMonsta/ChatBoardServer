@@ -44,8 +44,8 @@ public class Core {
 		}).start();
 
 		logger.info("Calling creation method");
-		userService.clearUsers();
 		postService.clearPosts();
+		userService.clearUsers();
 		User user = userService.createAndSafeUser("Hades", 13135);
 		logger.info("Creation method is over");
 		postService.createAndSavePost(user, "Testpost");
@@ -57,7 +57,7 @@ public class Core {
 		try (ServerSocket server = new ServerSocket(PORT)) {
 			logger.info("Server is listening on port: " + PORT);
 
-			// TODO Max active session count
+			// TODO max .env num Threads
 			// noinspection InfiniteLoopStatement
 			while(true) {
 				Socket sock = server.accept();

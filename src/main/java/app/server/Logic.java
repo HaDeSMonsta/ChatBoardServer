@@ -25,12 +25,10 @@ public class Logic extends Thread {
 	private final Socket sock;
 	private final UserService userService;
 	private final PostService postService;
-	private final Random random = new Random();
 
 	@Override
 	public void run() {
-		final int sessionID = random.nextInt(1_000); // TODO session id = matr num
-		logger.info("Starting session " + sessionID);
+		logger.info("Starting new session");
 
 		try (InputStream in = sock.getInputStream(); OutputStream out = sock.getOutputStream()) {
 
@@ -52,12 +50,19 @@ public class Logic extends Thread {
 
 			if(!Core.containsKey(authKey)) {
 				logger.info("Invalid authentication was tried, key was: " + authKey);
-				logger.info(String.format("Session %d ended", sessionID));
+				logger.info("Session ended");
 				writeStream(out, "Invalid authentication");
 				return;
 			} else {
-				logger.info(String.format("Authentication %s Ok, Session %d will begin", authKey, sessionID));
+				logger.info(String.format("Authentication %s Ok, Session will begin", authKey));
 				writeStream(out, "Authentication Ok");
+			}
+
+			int sessionID = -1;
+			try {
+				sessionID = Integer.parseInt(authKey);
+			} catch(NumberFormatException nfe) {
+				logger.error("Unable to parse Key to int: " + authKey);
 			}
 
 			final String request = readStream(in);
@@ -174,52 +179,52 @@ public class Logic extends Thread {
 			return "Invalid Security number, blocked User " + name;
 		}
 
-    	try {
-    		postId = Long.parseLong(request[3]);
-    	} catch(NumberFormatException nfe) {
-    		return String.format("%s is not a valid long", request[3]);
-    	}
+		try {
+			postId = Long.parseLong(request[3]);
+		} catch(NumberFormatException nfe) {
+			return String.format("%s is not a valid long", request[3]);
+		}
 
 		if(postService.getPostById(postId).isEmpty()) return String.format("No Post with ID %d found", postId);
 
-    	postService.deletePost(postId);
-    	return String.format("Deleted Post with ID %d", postId);
+		postService.deletePost(postId);
+		return String.format("Deleted Post with ID %d", postId);
 	}
 
 	private String votePost(String[] request) {
 		if(request.length != 5) return "Invalid request, five parts needed for votePost";
 
-    	User user;
-    	String name = request[1];
-    	Optional<User> option = userService.getUserByName(name);
-    	int secNum;
-    	Long postId;
+		User user;
+		String name = request[1];
+		Optional<User> option = userService.getUserByName(name);
+		int secNum;
+		Long postId;
 		String vote = request[4];
 
-    	if(option.isEmpty()) return "Invalid username, user does not exist";
-    	user = option.get();
+		if(option.isEmpty()) return "Invalid username, user does not exist";
+		user = option.get();
 
-    	try {
-    		secNum = Integer.parseInt(request[2]);
-    	} catch(NumberFormatException nfe) {
-    		return String.format("%s is not a valid int", request[2]);
-    	}
+		try {
+			secNum = Integer.parseInt(request[2]);
+		} catch(NumberFormatException nfe) {
+			return String.format("%s is not a valid int", request[2]);
+		}
 
-    	if(user.getSecNum() != secNum) {
-    		user.setBlocked(true);
-    		return "Invalid Security number, blocked User " + name;
-    	}
+		if(user.getSecNum() != secNum) {
+			user.setBlocked(true);
+			return "Invalid Security number, blocked User " + name;
+		}
 
-    	try {
-    		postId = Long.parseLong(request[3]);
-    	} catch(NumberFormatException nfe) {
-    		return String.format("%s is not a valid long", request[3]);
-    	}
+		try {
+			postId = Long.parseLong(request[3]);
+		} catch(NumberFormatException nfe) {
+			return String.format("%s is not a valid long", request[3]);
+		}
 
-    	Optional<Post> postOption = postService.getPostById(postId);
-    	if(postOption.isEmpty()) return String.format("No Post with ID %d found", postId);
+		Optional<Post> postOption = postService.getPostById(postId);
+		if(postOption.isEmpty()) return String.format("No Post with ID %d found", postId);
 
-    	Post post = postOption.get();
+		Post post = postOption.get();
 
 		switch(vote.toLowerCase()) {
 			case "up" -> {
@@ -231,7 +236,7 @@ public class Logic extends Thread {
 				return "Successfully downvoted post " + post.getId();
 			}
 			default -> {
-				return  String.format("Invalid vote option (up/down): " + vote);
+				return String.format("Invalid vote option (up/down): " + vote);
 			}
 		}
 	}

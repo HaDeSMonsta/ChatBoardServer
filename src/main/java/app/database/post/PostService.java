@@ -50,20 +50,18 @@ public class PostService {
 		return createPost(p);
 	}
 
-	public synchronized boolean upVote(User user, Post post) {
+	public synchronized void upVote(User user, Post post) {
 		post.setUpvotes(
 				String.format("%s;%s", post.getUpvotes(), user.getName())
 		);
 		postRepository.save(post);
-		return true;
 	}
 
-	public synchronized boolean downVote(User user, Post post) {
+	public synchronized void downVote(User user, Post post) {
 		post.setDownvotes(
 				String.format("%s;%s", post.getDownvotes(), user.getName())
 		);
 		postRepository.save(post);
-		return true;
 	}
 
 	/**
@@ -71,6 +69,7 @@ public class PostService {
 	 *
 	 * @param username the username of the user
 	 * @param limit    the maximum number of posts to retrieve
+	 *
 	 * @return a unmutable list of posts written by the user, up to the specified limit
 	 */
 	public synchronized List<Post> getAmountOfPostByUsername(String username, int limit) {
