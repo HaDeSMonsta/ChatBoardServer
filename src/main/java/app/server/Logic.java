@@ -1,4 +1,5 @@
 package app.server;
+// TODO Save (un-)blocking status
 
 import app.database.post.Post;
 import app.database.post.PostService;
