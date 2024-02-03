@@ -52,7 +52,7 @@ public class Admin {
 	private void run(Socket sock) {
 		try (InputStream in = sock.getInputStream(); OutputStream out = sock.getOutputStream()) {
 			var ref = new Object() {
-				boolean authenticated = false;
+				volatile boolean authenticated = false;
 			};
 
 			new Thread(() -> {
