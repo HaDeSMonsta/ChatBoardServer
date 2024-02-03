@@ -13,12 +13,12 @@ import java.util.concurrent.ThreadFactory;
 
 @SpringBootApplication
 public class Entrypoint {
+	private final Core core;
+	private final Admin admin;
+
 	public static void main(String[] args) {
 		SpringApplication.run(Entrypoint.class, args);
 	}
-
-	private final Core core;
-	private final Admin admin;
 
 	@Autowired
 	public Entrypoint(Core core, Admin admin) {

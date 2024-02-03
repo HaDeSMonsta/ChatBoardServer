@@ -25,9 +25,9 @@ public class Core {
 	private final String KEYS_PATH = "/userdata/authenticationKeys.txt";
 	private static final int PORT = Integer.parseInt(System.getenv("MAIN_PORT"));
 	private static final int NUM_SCAN_INTVL_MIN = Integer.parseInt(System.getenv("NUM_SCAN_INTVL_MIN"));
+	private static final long NUM_SCAN_INTVL_MS = NUM_SCAN_INTVL_MIN * 60_000L;
 	private static final int MAX_CONCURRENT_CONNECTIONS = Integer.parseInt(
 			System.getenv("MAX_CONCURRENT_CONNECTIONS"));
-	private static final long NUM_SCAN_INTVL_MS = NUM_SCAN_INTVL_MIN * 60_000L;
 	private final Logger logger = LogManager.getLogger(Core.class);
 	private final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_CONCURRENT_CONNECTIONS);
 	private final UserService userService;

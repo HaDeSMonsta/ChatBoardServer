@@ -57,7 +57,7 @@ public class Logic extends Thread {
 				logger.info(String.format("Someone is trying to connect with Matrikel Numer %s while in use",
 						authKey));
 				writeStream(out, "Key is in use, connection closed");
-				return;
+				return; // TODO Not remove key when returning here
 			} else {
 				logger.info(String.format("Authentication %s Ok, Session will begin", authKey));
 				writeStream(out, "Authentication Ok");
@@ -291,6 +291,7 @@ public class Logic extends Thread {
 		Post post = postOption.get();
 
 
+		// TODO Remove try catch
 		switch(vote.toLowerCase()) {
 			case "up" -> {
 
