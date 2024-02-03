@@ -28,6 +28,7 @@ public class Logic extends Thread {
 
 	@Override
 	public void run() {
+		boolean keyInUse = false;
 		try (InputStream in = sock.getInputStream(); OutputStream out = sock.getOutputStream()) {
 
 			logger.info("Starting new session");
@@ -57,7 +58,8 @@ public class Logic extends Thread {
 				logger.info(String.format("Someone is trying to connect with Matrikel Numer %s while in use",
 						authKey));
 				writeStream(out, "Key is in use, connection closed");
-				return; // TODO Not remove key when returning here
+				keyInUse = true;
+				return;
 			} else {
 				logger.info(String.format("Authentication %s Ok, Session will begin", authKey));
 				writeStream(out, "Authentication Ok");
@@ -124,7 +126,7 @@ public class Logic extends Thread {
 		} catch(Exception e) {
 			logger.error("Unknown exception occurred in Logic.run(): " + e.getMessage());
 		} finally {
-			activeKeys.remove(String.valueOf(sessionId));
+			if(!keyInUse) activeKeys.remove(String.valueOf(sessionId));
 			logger.info(String.format("Session %d, closed", sessionId));
 		}
 	}
