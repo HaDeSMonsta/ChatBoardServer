@@ -292,47 +292,21 @@ public class Logic extends Thread {
 
 		Post post = postOption.get();
 
+		List<String> upvotes = Arrays.stream(post.getUpvotes().split(";")).toList();
+		List<String> downvotes = Arrays.stream(post.getDownvotes().split(";")).toList();
+		if (upvotes.contains(name) || downvotes.contains(name)) return "Already voted on Post";
 
-		// TODO Remove try catch
-		switch(vote.toLowerCase()) {
+		return switch(vote.toLowerCase()) {
 			case "up" -> {
-
-				List<String> upvotes = new ArrayList<>();
-				List<String> downvotes = new ArrayList<>();
-				try {
-					upvotes = Arrays.stream(post.getUpvotes().split(";")).toList();
-				} catch(NullPointerException ignored) {
-				}
-				try {
-					downvotes = Arrays.stream(post.getDownvotes().split(";")).toList();
-				} catch(NullPointerException ignored) {
-				}
-				if(upvotes.contains(name) || downvotes.contains(name)) return "Already voted on Post";
-
 				postService.upVote(user, post);
-				return "Successfully upvoted post " + post.getId();
+				yield "Successfully upvoted post " + post.getId();
 			}
 			case "down" -> {
-
-				List<String> upvotes = new ArrayList<>();
-				List<String> downvotes = new ArrayList<>();
-				try {
-					upvotes = Arrays.stream(post.getUpvotes().split(";")).toList();
-				} catch(NullPointerException ignored) {
-				}
-				try {
-					downvotes = Arrays.stream(post.getDownvotes().split(";")).toList();
-				} catch(NullPointerException ignored) {
-				}
-				if(upvotes.contains(name) || downvotes.contains(name)) return "Already voted on Post";
-
 				postService.downVote(user, post);
-				return "Successfully downvoted post " + post.getId();
+				yield "Successfully downvoted post: " + post.getId();
 			}
-			default -> {
-				return String.format("Invalid vote option (up/down): " + vote);
-			}
-		}
+			default -> String.format("Invalid vote option \"%s\"\nTry \"up\" or \"down\"", vote);
+		};
 	}
 
 	private String getBoard(String[] request) {
