@@ -195,10 +195,10 @@ public class Logic extends Thread {
 		String name = request[1];
 		int secNum;
 		String text = request[3];
-		Optional<User> option = userService.getUserByName(name);
+		Optional<User> userOption = userService.getUserByName(name);
 
-		if(option.isEmpty()) return "Invalid username, user does not exist";
-		user = option.get();
+		if(userOption.isEmpty()) return "Invalid username, user does not exist";
+		user = userOption.get();
 
 		try {
 			secNum = Integer.parseInt(request[2]);
@@ -213,9 +213,10 @@ public class Logic extends Thread {
 
 		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
 
-		Post post = postService.createAndSavePost(user, text);
+		Optional<Post> postOption = postService.createAndSavePost(user, text);
 
-		return String.format("Created Post with ID %d", post.getId());
+		return postOption.isPresent() ? String.format("Created Post with ID %d", postOption.get().getId()) :
+				"Unable to create User (This should *never* happen)";
 	}
 
 	private String deletePost(String[] request) {

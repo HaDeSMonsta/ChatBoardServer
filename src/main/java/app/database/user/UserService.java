@@ -24,14 +24,16 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 
+	/**
+	 * Retrieves a user by their name from the user repository.
+	 *
+	 * @param name the name of the user to retrieve
+	 * @return an Optional containing the retrieved user if found, or an empty Optional if not found
+	 */
 	public synchronized Optional<User> getUserByName(String name) {
 		List<User> users = userRepository.findAll();
 		for(User u : users) if(u.getName().equals(name)) return Optional.of(u);
 		return Optional.empty();
-	}
-
-	public synchronized User saveUser(User user) {
-		return userRepository.save(user);
 	}
 
 	public synchronized List<User> getAllUsers() {
@@ -42,23 +44,40 @@ public class UserService {
 		userRepository.deleteById(id);
 	}
 
+	/**
+	 * Clear all users from the user repository.
+	 */
 	public synchronized void clearUsers() {
 		userRepository.deleteAll();
 	}
 
+	/**
+	 * Creates and saves a new user with the given name and security number
+	 * and sets the blocked status to false.
+	 *
+	 * @param name   the name of the user
+	 * @param secNum the security number of the user
+	 * @return an Optional containing the created user if successful, or an empty Optional if there was an error
+	 */
 	public synchronized Optional<User> createAndSafeUser(String name, int secNum) {
 		try {
-			User u = new User();
-			u.setName(name);
-			u.setSecNum(secNum);
-			u.setBlocked(false);
-			return Optional.of(saveUser(u));
+			User user = new User();
+			user.setName(name);
+			user.setSecNum(secNum);
+			user.setBlocked(false);
+			return Optional.of(userRepository.save(user));
 		} catch(DataIntegrityViolationException dive) {
 			logger.error(dive.getMessage());
 			return Optional.empty();
 		}
 	}
 
+	/**
+	 * Sets the blocked status of a user and saves the changes to the user repository.
+	 *
+	 * @param user   the user to set the blocked status for
+	 * @param status the blocked status to set for the user
+	 */
 	public synchronized void setBlockStatus(User user, boolean status) {
 		user.setBlocked(status);
 		userRepository.save(user);

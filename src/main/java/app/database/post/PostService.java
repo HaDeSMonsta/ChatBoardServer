@@ -4,6 +4,7 @@ import app.database.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,32 +25,58 @@ public class PostService {
 		return postRepository.findAll();
 	}
 
+	/**
+	 * Retrieves a post by its ID.
+	 *
+	 * @param id The ID of the post.
+	 * @return An Optional containing the post if found, or an empty Optional if not found.
+	 */
 	public synchronized Optional<Post> getPostById(Long id) {
 		return postRepository.findById(id);
 	}
 
-	public synchronized Post createPost(Post post) {
-		return postRepository.save(post);
-	}
-
 	public synchronized void deletePost(Long id) {
-		logger.info("Deleting Post with ID: " + id);
 		postRepository.deleteById(id);
 	}
 
+	/**
+	 * Clears all the posts by deleting them from the post repository.
+	 */
 	public synchronized void clearPosts() {
 		postRepository.deleteAll();
 	}
 
-	public synchronized Post createAndSavePost(User author, String contend) {
-		Post p = new Post();
-		p.setAuthor(author);
-		p.setContent(contend);
-		p.setUpvotes("");
-		p.setDownvotes("");
-		return createPost(p);
+	/**
+	 * Creates and saves a post with the specified author and content
+	 * along with setting initial values for upvotes and downvotes as "".
+	 * This ensures that upvotes and downvotes are never null.
+	 *
+	 * @param author  the author of the post
+	 * @param contend the content of the post
+	 *
+	 * @return the created post
+	 */
+	public synchronized Optional<Post> createAndSavePost(User author, String contend) {
+		try {
+		Post post = new Post();
+		post.setAuthor(author);
+		post.setContent(contend);
+		post.setUpvotes("");
+		post.setDownvotes("");
+		return Optional.of(postRepository.save(post));
+	} catch(DataIntegrityViolationException dive){
+			logger.error(dive.getMessage());
+			return Optional.empty();
+		}
 	}
 
+	/**
+	 * Upvotes a post by a user.
+	 *
+	 * @param user the user who is upvoting the post
+	 * @param post the post to be upvoted
+	 * @return true if the post was successfully upvoted, false otherwise
+	 */
 	public synchronized boolean upVote(User user, Post post) {
 
 		if(post.getUpvotes().isBlank()) {
@@ -72,6 +99,13 @@ public class PostService {
 		return false;
 	}
 
+	/**
+	 * Downvotes a post by a user.
+	 *
+	 * @param user the user who is downvoting the post
+	 * @param post the post to be downvoted
+	 * @return true if the post was successfully downvoted, false otherwise
+	 */
 	public synchronized boolean downVote(User user, Post post) {
 
 		if(post.getDownvotes().isBlank()) {
@@ -95,7 +129,8 @@ public class PostService {
 	}
 
 	/**
-	 * Returns a list of posts with a specified limit.
+	 * Returns a list of random posts with a specified limit or all posts
+	 * if the limit is <= 0.
 	 *
 	 * @param limit the maximum number of posts to return
 	 * @return a list of posts with the specified limit
@@ -103,13 +138,18 @@ public class PostService {
 	public synchronized List<Post> getAmountOfPosts(int limit) {
 		List<Post> posts = getAllPosts();
 		Collections.shuffle(posts);
-		// Should never be 0 when called by user, but for internal purposes ternary
+		// Should never be <= 0 when called by user, but to be sure: ternary
 		return limit <= 0 ? posts : posts
 				.stream()
 				.limit(limit)
 				.toList();
 	}
 
+	/**
+	 * Removes duplicate posts for a given user.
+	 *
+	 * @param user the user to filter the posts for
+	 */
 	public synchronized void distinctPosts(User user) {
 		Set<String> postSet = new HashSet<>();
 		List<Post> posts = getAllPosts()
@@ -118,25 +158,21 @@ public class PostService {
 				.toList();
 
 		for(Post p : posts) {
-			logger.info(String.format("Post author name: %s, Text: %s", p.getAuthor(), p.getContent()));
 			if(!postSet.add(p.getContent())) deletePost(p.getId());
-			else logger.info("Not filtering: " + p.getContent());
 		}
 	}
 
+	/**
+	 * Returns the vote count for a given post. The vote count is calculated
+	 * by subtracting the number of downvotes from the number of upvotes.
+	 *
+	 * @param post the post for which the vote count is calculated
+	 * @return the vote count for the post
+	 */
 	public synchronized int getVotes(Post post) {
-		int upvotes = 0;
-		int downvotes = 0;
+		int upvotes = post.getUpvotes().split(";").length;
+		int downvotes = post.getDownvotes().split(";").length;
 
-		try {
-			upvotes = post.getUpvotes().split(";").length;
-		} catch(NullPointerException ignored) {
-		}
-
-		try {
-			downvotes = post.getDownvotes().split(";").length;
-		} catch(NullPointerException ignored) {
-		}
 		return upvotes - downvotes;
 	}
 }
