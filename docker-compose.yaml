@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   app:
     build: .
@@ -18,7 +18,8 @@ services:
     image: postgres
     container_name: postgres
     restart: unless-stopped
-    network_mode: host
+    ports:
+      - "5432:5432"
     env_file:
       - .env
     volumes:
