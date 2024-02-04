@@ -6,7 +6,7 @@
 			"Console": {
 				"name": "STDOUT",
 				"PatternLayout": {
-					"Pattern": "%d{HH:mm:ss} [%-15.15t] %-5level %logger{36} - %msg%n"
+					"Pattern": "%d{HH:mm:ss} [%15.15t] %-5level %logger{36} - %msg%n"
 				}
 			},
 			"RollingFile": {
@@ -14,7 +14,7 @@
 				"fileName": "/logs/Server.log",
 				"filePattern": "/logs/Server-%d{yyyy-MM-dd}-%i.log",
 				"PatternLayout": {
-					"Pattern": "%d{HH:mm:ss} [%-15.15t] %-5level %logger{36} - %msg%n"
+					"Pattern": "%d{HH:mm:ss} [%15.15t] %-5level %logger{36} - %msg%n"
 				},
 				"Policies": {
 					"OnStartupTriggeringPolicy": {}
