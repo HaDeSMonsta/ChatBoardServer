@@ -75,12 +75,6 @@ public class Core {
 
 	}
 
-	private static void printSet() {
-		synchronized(keys) {
-			for(String key : keys) System.out.println(key);
-		}
-	}
-
 	/**
 	 * Checks if the provided key exists in the set of authentication keys.
 	 *
