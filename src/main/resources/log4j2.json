@@ -1,0 +1,38 @@
+{
+	"configuration": {
+		"status": "error",
+		"name": "JSONConfig",
+		"appenders": {
+			"Console": {
+				"name": "STDOUT",
+				"PatternLayout": {
+					"Pattern": "%d{HH:mm:ss} [%-15.15t] %-5level %logger{36} - %msg%n"
+				}
+			},
+			"RollingFile": {
+				"name": "RollingFile",
+				"fileName": "/logs/Server.log",
+				"filePattern": "/logs/Server-%d{yyyy-MM-dd}-%i.log",
+				"PatternLayout": {
+					"Pattern": "%d{HH:mm:ss} [%-15.15t] %-5level %logger{36} - %msg%n"
+				},
+				"Policies": {
+					"OnStartupTriggeringPolicy": {}
+				}
+			}
+		},
+		"loggers": {
+			"root": {
+				"level": "info",
+				"appenderRef": [
+					{
+						"ref": "STDOUT"
+					},
+					{
+						"ref": "RollingFile"
+					}
+				]
+			}
+		}
+	}
+}

@@ -19,14 +19,20 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
     implementation("org.apache.logging.log4j:log4j-core:2.17.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.17.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.1")
 
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
+        exclude("org.springframework.boot", "spring-boot-starter-logging")
+    }
+    implementation("org.springframework.boot:spring-boot-starter-web") {
+        exclude("org.springframework.boot", "spring-boot-starter-logging")
+    }
+
     implementation("org.postgresql:postgresql")  // Postgres JDBC driver
 }
 
 val jarName = "ChatBoardServer"
-val jarVersion = "0.0.1"
 
 springBoot {
     mainClass.set("app.Entrypoint")
