@@ -1,6 +1,7 @@
 package app.database.post;
 
 import app.database.user.User;
+import app.database.user.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,5 +175,33 @@ public class PostService {
 		int downvotes = post.getDownvotes().split(";").length;
 
 		return upvotes - downvotes;
+	}
+
+	public synchronized String migratePost(
+			UserService userService, String authorName, String content, String upvotes, String downvotes) {
+		Optional<User> userOptional = userService.getUserByName(authorName);
+		User author;
+		if(userOptional.isEmpty()) return "Unable to get user " + authorName;
+		else author = userOptional.get();
+
+		if(content.length() > 500) content = content.substring(0, 497) + "...";
+		Optional<Post> postOptional = createAndSavePost(author, content);
+
+		Post post;
+		if(postOptional.isEmpty()) return "Unable to create post";
+		else post = postOptional.get();
+
+		upvotes = upvotes.equals(";") ? "" : upvotes;
+		upvotes = upvotes.startsWith(";") ? upvotes.substring(1) : upvotes;
+		upvotes = upvotes.endsWith(";") ? upvotes.substring(0, upvotes.length() - 1) : upvotes;
+
+		downvotes = downvotes.equals(";") ? "" : downvotes;
+		downvotes = downvotes.startsWith(";") ? downvotes.substring(1) : downvotes;
+		downvotes = downvotes.endsWith(";") ? downvotes.substring(0, downvotes.length() - 1) : downvotes;
+
+		post.setUpvotes(upvotes);
+		post.setDownvotes(downvotes);
+		postRepository.save(post);
+		return "";
 	}
 }

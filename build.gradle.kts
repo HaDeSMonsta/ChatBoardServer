@@ -30,6 +30,8 @@ dependencies {
     }
 
     implementation("org.postgresql:postgresql")  // Postgres JDBC driver
+
+    implementation("com.googlecode.json-simple:json-simple:1.1")
 }
 
 val jarName = "ChatBoardServer"
