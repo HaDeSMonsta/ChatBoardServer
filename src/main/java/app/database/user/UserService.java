@@ -31,9 +31,7 @@ public class UserService {
 	 * @return an Optional containing the retrieved user if found, or an empty Optional if not found
 	 */
 	public synchronized Optional<User> getUserByName(String name) {
-		List<User> users = userRepository.findAll();
-		for(User u : users) if(u.getName().equals(name)) return Optional.of(u);
-		return Optional.empty();
+		return userRepository.findByName(name);
 	}
 
 	public synchronized List<User> getAllUsers() {
