@@ -6,6 +6,7 @@ build/
 init_db/
 logs/
 postgres_data/
+migrate/
 userdata/
 
 .dockerignore
