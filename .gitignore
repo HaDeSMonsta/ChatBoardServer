@@ -46,3 +46,6 @@ authenticationKeys.txt
 
 ### Database ###
 postgres_data/
+
+### Logs ###
+logs/

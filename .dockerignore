@@ -1,0 +1,17 @@
+.git/
+.gradle/
+.idea/
+
+build/
+init_db/
+logs/
+postgres_data/
+userdata/
+
+.dockerignore
+.env
+.gitignore
+
+docker-compose.yaml
+Dockerfile
+gradlew.bat
