@@ -21,4 +21,17 @@ public class LogService {
 		log.setMatrNum(matrNum);
 		logRepository.save(log);
 	}
+
+	public synchronized LogResult getLogsNyMatrNum(int matrNum) {
+		return logRepository.findFirstAndLastLogPerMatrNum(matrNum);
+	}
+
+	public synchronized long getLongsByHour(LocalDateTime startHour) {
+		LocalDateTime endHour = startHour.plusHours(1);
+		return logRepository.countLogsBetween(startHour, endHour);
+	}
+
+	public synchronized long getTotalCountOfLogs() {
+		return logRepository.count();
+	}
 }

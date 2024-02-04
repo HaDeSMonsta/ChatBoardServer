@@ -1,5 +1,6 @@
 package app.server;
 
+import app.database.log.LogService;
 import app.database.post.Post;
 import app.database.post.PostService;
 import app.database.user.User;
@@ -24,6 +25,7 @@ public class Logic extends Thread {
 	private final Socket sock;
 	private final UserService userService;
 	private final PostService postService;
+	private final LogService logService;
 	private int sessionId = -1;
 
 	@Override
@@ -74,6 +76,7 @@ public class Logic extends Thread {
 				return;
 			}
 
+			logService.log(sessionId);
 
 			final String request = readStream(in);
 

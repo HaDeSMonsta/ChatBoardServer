@@ -1,5 +1,6 @@
 package app.server;
 
+import app.database.log.LogService;
 import app.database.post.PostService;
 import app.database.user.User;
 import app.database.user.UserService;
@@ -32,11 +33,13 @@ public class Core {
 	private final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_CONCURRENT_CONNECTIONS);
 	private final UserService userService;
 	private final PostService postService;
+	private final LogService logService;
 
 	@Autowired
-	public Core(UserService userService, PostService postService) {
+	public Core(UserService userService, PostService postService, LogService logService) {
 		this.userService = userService;
 		this.postService = postService;
+		this.logService = logService;
 	}
 
 	public void start() {
@@ -65,7 +68,7 @@ public class Core {
 			// noinspection InfiniteLoopStatement
 			while(true) {
 				Socket sock = server.accept();
-				threadPool.submit(new Logic(sock, userService, postService));
+				threadPool.submit(new Logic(sock, userService, postService, logService));
 			}
 
 		} catch(IOException e) {
