@@ -114,7 +114,7 @@ public class Logic extends Thread {
 								Arrays.toString(requestParts)));
 						yield getBoard(requestParts);
 					}
-					default -> request;
+					default -> answer;
 				};
 			}
 
