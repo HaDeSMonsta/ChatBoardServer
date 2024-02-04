@@ -2,10 +2,13 @@ version: '3.8'
 services:
   app:
     build: .
+    container_name: ChatBoardServer
+    restart: unless-stopped
     command: [ "/wait_for_it.sh", "java", "-jar", "ChatBoardServer_new.jar" ]
     network_mode: host
     volumes:
-      - /home/hades/ChatBoardServer/src/main/resources/userdata/:/userdata
+      - /home/hades/ChatBoardServer/userdata:/userdata
+      - /home/hades/ChatBoardServer/logs:/logs
     env_file:
       - .env
     depends_on:
@@ -19,5 +22,5 @@ services:
     env_file:
       - .env
     volumes:
-      - /home/hades/ChatBoardServer/src/main/resources/init_db:/docker-entrypoint-initdb.d
-      - /home/hades/postgres_data:/var/lib/postgresql/data
+      - /home/hades/ChatBoardServer/init_db:/docker-entrypoint-initdb.d
+      - /home/hades/ChatBoardServer/postgres_data:/var/lib/postgresql/data

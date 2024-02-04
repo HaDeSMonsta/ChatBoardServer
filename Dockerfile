@@ -1,5 +1,9 @@
 FROM gradle:8.4-jdk17-alpine AS build
 
+ENV GRADLE_USER_HOME /.gradle
+
+RUN mkdir /.gradle && chmod 777 /.gradle
+
 WORKDIR /home/gradle/project
 
 COPY --chown=gradle:gradle build.gradle.kts /home/gradle/project
