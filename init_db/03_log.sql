@@ -1,5 +1,6 @@
 CREATE TABLE log
 (
     id      SERIAL PRIMARY KEY,
-    content TEXT NOT NULL
+    time_stamp TIMESTAMP NOT NULL,
+    matr_num INTEGER NOT NULL
 )
