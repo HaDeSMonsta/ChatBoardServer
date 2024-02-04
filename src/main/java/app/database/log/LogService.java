@@ -22,7 +22,7 @@ public class LogService {
 		logRepository.save(log);
 	}
 
-	public synchronized LogResult getLogsNyMatrNum(int matrNum) {
+	public synchronized LogResult getLogsByMatrNum(int matrNum) {
 		return logRepository.findFirstAndLastLogPerMatrNum(matrNum);
 	}
 
