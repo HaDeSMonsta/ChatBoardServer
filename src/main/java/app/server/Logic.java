@@ -78,7 +78,7 @@ public class Logic extends Thread {
 
 			logService.log(sessionId);
 
-			final String request = readStream(in);
+			final String request = readStream(in).trim();
 
 			String answer = "Invalid request";
 			if(!request.isBlank()) {
