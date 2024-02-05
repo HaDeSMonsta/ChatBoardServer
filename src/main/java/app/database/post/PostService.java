@@ -135,6 +135,24 @@ public class PostService {
 	}
 
 	/**
+	 * Returns the vote count for a given post. The vote count is calculated
+	 * by subtracting the number of downvotes from the number of upvotes.
+	 *
+	 * @param post the post for which the vote count is calculated
+	 *
+	 * @return the vote count for the post
+	 */
+	public synchronized int getVotes(Post post) {
+		String ups = post.getUpvotes();
+		String downs = post.getDownvotes();
+
+		int upvotes = ups.isBlank() ? 0 : ups.split(";").length;
+		int downvotes = downs.isBlank() ? 0 : downs.split(";").length;
+
+		return upvotes - downvotes;
+	}
+
+	/**
 	 * Returns a list of random posts with a specified limit or all posts
 	 * if the limit is <= 0.
 	 *
@@ -167,21 +185,6 @@ public class PostService {
 		for(Post p : posts) {
 			if(!postSet.add(p.getContent())) deletePost(p.getId());
 		}
-	}
-
-	/**
-	 * Returns the vote count for a given post. The vote count is calculated
-	 * by subtracting the number of downvotes from the number of upvotes.
-	 *
-	 * @param post the post for which the vote count is calculated
-	 *
-	 * @return the vote count for the post
-	 */
-	public synchronized int getVotes(Post post) {
-		int upvotes = post.getUpvotes().split(";").length;
-		int downvotes = post.getDownvotes().split(";").length;
-
-		return upvotes - downvotes;
 	}
 
 	public synchronized Optional<String> migratePost(

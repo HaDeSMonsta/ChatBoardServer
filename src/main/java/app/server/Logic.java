@@ -119,8 +119,6 @@ public class Logic extends Thread {
 			}
 
 			writeStream(out, answer);
-			String toLog = answer.length() > 40 ? answer.substring(0, 40) + "..." : answer;
-			logger.info(String.format("Session %d, answered: %s", sessionId, toLog));
 
 		} catch(IOException e) {
 			logger.error("Error: " + e.getMessage());
@@ -144,7 +142,9 @@ public class Logic extends Thread {
 			return String.format("%s is not a valid int", request[2]);
 		}
 
+		if(name.isBlank()) return "Name must not be empty";
 		if(name.length() > 255) return "Name is too long";
+		if(secNum <= 0) return "Security number must be > 0";
 
 		if(userService.getUserByName(name).isPresent()) {
 			return String.format("User with name %s already exists", name);
@@ -153,9 +153,9 @@ public class Logic extends Thread {
 		Optional<User> option = userService.createAndSafeUser(name, secNum);
 		if(option.isPresent()) {
 			User user = option.get();
-			return String.format("Created User with Name %s", user.getName());
+			return String.format("Created User with Name \"%s\"\n%s", user.getName(), user);
 		}
-		return String.format("User with name %s already exists", name);
+		return String.format("User with name \"%s\" already exists", name);
 	}
 
 	private String unblockUser(String[] request) {
@@ -260,7 +260,8 @@ public class Logic extends Thread {
 
 		Post post = postOption.get();
 		if(!post.getAuthor().equals(author)) return
-				String.format("You can only delete your own Posts. Author: %s, provided user: %s", author, post);
+				String.format("You can only delete your own Posts. Author: %s, provided user: %s",
+						post.getAuthor().getName(), author.getName());
 
 		postService.deletePost(postId);
 		return String.format("Deleted Post with ID %d", postId);
@@ -303,9 +304,9 @@ public class Logic extends Thread {
 
 		Post post = postOption.get();
 
-		List<String> upvotes = Arrays.stream(post.getUpvotes().split(";")).toList();
-		List<String> downvotes = Arrays.stream(post.getDownvotes().split(";")).toList();
-		if(upvotes.contains(name) || downvotes.contains(name)) return "Already voted on Post";
+		if(post.getAuthor().equals(user)) {
+			return "Cannot vote on your own post";
+		}
 
 		return switch(vote.toLowerCase()) {
 			case "up" -> {
@@ -339,7 +340,7 @@ public class Logic extends Thread {
 			return String.format("%s or %s is not a valid int", request[2], request[3]);
 		}
 
-		if(limit <= 0) return "Limit must be > 0, limit: " + limit;
+		if(limit <= 0) return "Limit must be > 0, given limit: " + limit;
 
 		user = option.get();
 

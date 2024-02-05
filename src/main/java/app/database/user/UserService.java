@@ -60,6 +60,7 @@ public class UserService {
 	 * @return an Optional containing the created user if successful, or an empty Optional if there was an error
 	 */
 	public synchronized Optional<User> createAndSafeUser(String name, int secNum) {
+		if(name.isBlank() || secNum <= 0) return Optional.empty();
 		try {
 			User user = new User();
 			user.setName(name);
