@@ -34,27 +34,28 @@ dependencies {
     implementation("com.googlecode.json-simple:json-simple:1.1")
 }
 
-val jarName = "ChatBoardServer"
-
 springBoot {
     mainClass.set("app.Entrypoint")
 }
 
-/*tasks.jar {
+val jarName = "ServerAdmin"
+val jarVersion = ""
+
+tasks.jar {
 
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     archiveBaseName.set(jarName)
     version = jarVersion
 
-    manifest.attributes["Main-Class"] = "database/Entrypoint"
+    manifest.attributes["Main-Class"] = "AdminClient"
 
     val dependencies = configurations
         .runtimeClasspath
         .get()
         .map { zipTree(it) }
     from(dependencies)
-}*/
+}
 
 tasks.test {
     useJUnitPlatform()
