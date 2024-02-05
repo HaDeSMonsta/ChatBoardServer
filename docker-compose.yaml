@@ -24,5 +24,4 @@ services:
     env_file:
       - .env
     volumes:
-      - /home/hades/ChatBoardServer/init_db:/docker-entrypoint-initdb.d
       - /home/hades/ChatBoardServer/postgres_data:/var/lib/postgresql/data
