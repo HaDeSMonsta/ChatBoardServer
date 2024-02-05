@@ -28,6 +28,7 @@ public class UserService {
 	 * Retrieves a user by their name from the user repository.
 	 *
 	 * @param name the name of the user to retrieve
+	 *
 	 * @return an Optional containing the retrieved user if found, or an empty Optional if not found
 	 */
 	public synchronized Optional<User> getUserByName(String name) {
@@ -55,6 +56,7 @@ public class UserService {
 	 *
 	 * @param name   the name of the user
 	 * @param secNum the security number of the user
+	 *
 	 * @return an Optional containing the created user if successful, or an empty Optional if there was an error
 	 */
 	public synchronized Optional<User> createAndSafeUser(String name, int secNum) {

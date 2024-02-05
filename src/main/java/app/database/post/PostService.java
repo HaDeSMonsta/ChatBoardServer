@@ -30,6 +30,7 @@ public class PostService {
 	 * Retrieves a post by its ID.
 	 *
 	 * @param id The ID of the post.
+	 *
 	 * @return An Optional containing the post if found, or an empty Optional if not found.
 	 */
 	public synchronized Optional<Post> getPostById(Long id) {
@@ -59,13 +60,13 @@ public class PostService {
 	 */
 	public synchronized Optional<Post> createAndSavePost(User author, String contend) {
 		try {
-		Post post = new Post();
-		post.setAuthor(author);
-		post.setContent(contend);
-		post.setUpvotes("");
-		post.setDownvotes("");
-		return Optional.of(postRepository.save(post));
-	} catch(DataIntegrityViolationException dive){
+			Post post = new Post();
+			post.setAuthor(author);
+			post.setContent(contend);
+			post.setUpvotes("");
+			post.setDownvotes("");
+			return Optional.of(postRepository.save(post));
+		} catch(DataIntegrityViolationException dive) {
 			logger.error(dive.getMessage());
 			return Optional.empty();
 		}
@@ -76,20 +77,22 @@ public class PostService {
 	 *
 	 * @param user the user who is upvoting the post
 	 * @param post the post to be upvoted
+	 *
 	 * @return true if the post was successfully upvoted, false otherwise
 	 */
 	public synchronized boolean upVote(User user, Post post) {
+
+		if(Arrays.asList(post.getDownvotes().split(";")).contains(user.getName())) return false;
 
 		if(post.getUpvotes().isBlank()) {
 			post.setUpvotes(user.getName());
 			postRepository.save(post);
 			return true;
-		}
-		else {
+		} else {
 
-			List<String> names = Arrays.asList(post.getUpvotes().split(";"));
+			List<String> upvotes = Arrays.asList(post.getUpvotes().split(";"));
 
-			if(!names.contains(user.getName())) {
+			if(!upvotes.contains(user.getName())) {
 				post.setUpvotes(
 						String.format("%s;%s", post.getUpvotes(), user.getName())
 				);
@@ -105,20 +108,22 @@ public class PostService {
 	 *
 	 * @param user the user who is downvoting the post
 	 * @param post the post to be downvoted
+	 *
 	 * @return true if the post was successfully downvoted, false otherwise
 	 */
 	public synchronized boolean downVote(User user, Post post) {
+
+		if(Arrays.asList(post.getUpvotes().split(";")).contains(user.getName())) return false;
 
 		if(post.getDownvotes().isBlank()) {
 			post.setDownvotes(user.getName());
 			postRepository.save(post);
 			return true;
-		}
-		else {
+		} else {
 
-			List<String> names = Arrays.asList(post.getUpvotes().split(";"));
+			List<String> downvotes = Arrays.asList(post.getDownvotes().split(";"));
 
-			if(!names.contains(user.getName())){
+			if(!downvotes.contains(user.getName())) {
 				post.setDownvotes(
 						String.format("%s;%s", post.getDownvotes(), user.getName())
 				);
@@ -134,9 +139,10 @@ public class PostService {
 	 * if the limit is <= 0.
 	 *
 	 * @param limit the maximum number of posts to return
+	 *
 	 * @return a list of posts with the specified limit
 	 */
-	public synchronized List<Post> getAmountOfPosts(int limit) {
+	public List<Post> getAmountOfPosts(int limit) {
 		List<Post> posts = getAllPosts();
 		Collections.shuffle(posts);
 		// Should never be <= 0 when called by user, but to be sure: ternary
@@ -168,6 +174,7 @@ public class PostService {
 	 * by subtracting the number of downvotes from the number of upvotes.
 	 *
 	 * @param post the post for which the vote count is calculated
+	 *
 	 * @return the vote count for the post
 	 */
 	public synchronized int getVotes(Post post) {
@@ -177,18 +184,18 @@ public class PostService {
 		return upvotes - downvotes;
 	}
 
-	public synchronized String migratePost(
+	public synchronized Optional<String> migratePost(
 			UserService userService, String authorName, String content, String upvotes, String downvotes) {
 		Optional<User> userOptional = userService.getUserByName(authorName);
 		User author;
-		if(userOptional.isEmpty()) return "Unable to get user " + authorName;
+		if(userOptional.isEmpty()) return Optional.of("Unable to get user " + authorName);
 		else author = userOptional.get();
 
 		if(content.length() > 500) content = content.substring(0, 497) + "...";
 		Optional<Post> postOptional = createAndSavePost(author, content);
 
 		Post post;
-		if(postOptional.isEmpty()) return "Unable to create post";
+		if(postOptional.isEmpty()) return Optional.of("Unable to create post");
 		else post = postOptional.get();
 
 		upvotes = upvotes.equals(";") ? "" : upvotes;
@@ -202,6 +209,6 @@ public class PostService {
 		post.setUpvotes(upvotes);
 		post.setDownvotes(downvotes);
 		postRepository.save(post);
-		return "";
+		return Optional.empty();
 	}
 }

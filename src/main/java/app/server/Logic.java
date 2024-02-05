@@ -305,15 +305,17 @@ public class Logic extends Thread {
 
 		List<String> upvotes = Arrays.stream(post.getUpvotes().split(";")).toList();
 		List<String> downvotes = Arrays.stream(post.getDownvotes().split(";")).toList();
-		if (upvotes.contains(name) || downvotes.contains(name)) return "Already voted on Post";
+		if(upvotes.contains(name) || downvotes.contains(name)) return "Already voted on Post";
 
 		return switch(vote.toLowerCase()) {
 			case "up" -> {
-				postService.upVote(user, post);
+				boolean voted = postService.upVote(user, post);
+				if(!voted) yield String.format("Unable to upvote Post %d, already voted", post.getId());
 				yield "Successfully upvoted post " + post.getId();
 			}
 			case "down" -> {
-				postService.downVote(user, post);
+				boolean voted = postService.downVote(user, post);
+				if(!voted) yield String.format("Unable to downvote Post %d, already voted", post.getId());
 				yield "Successfully downvoted post: " + post.getId();
 			}
 			default -> String.format("Invalid vote option \"%s\"\nTry \"up\" or \"down\"", vote);

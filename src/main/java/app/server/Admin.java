@@ -13,8 +13,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -268,17 +266,16 @@ public class Admin {
 			for(Object o : postArray) {
 				JSONObject post = (JSONObject) o;
 
-				String errorMessage = postService.migratePost(
+				Optional<String> errorMessage = postService.migratePost(
 						userService,
 						post.get("author").toString(),
 						post.get("text").toString(),
 						post.get("upvotes").toString(),
 						post.get("downvotes").toString()
 				);
-				if(!errorMessage.isBlank()) {
-					logger.error(String.format("Not able to migrate post %s, Error message: %s",
-							post, errorMessage));
-				}
+				errorMessage.ifPresent(s -> logger.error(
+						String.format("Not able to migrate post %s, Error message: %s", post, s)
+				));
 			}
 
 		} catch(IOException | ParseException e) {
