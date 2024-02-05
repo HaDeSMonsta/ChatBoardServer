@@ -184,7 +184,8 @@ public class Logic extends Thread {
 		// Text can have whitespace
 		if(request.length > 4) {
 			StringBuilder builder = new StringBuilder();
-			for(String s : request) builder.append(s).append(" ");
+			// Posts should never have leading/trailing white space or more than one space between words
+			for(String s : request) if(!s.isBlank()) builder.append(s.trim()).append(" ");
 			request = builder
 					.toString()
 					.trim()
