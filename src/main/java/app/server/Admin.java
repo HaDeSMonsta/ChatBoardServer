@@ -289,6 +289,7 @@ public class Admin {
 		StringBuilder builder = new StringBuilder();
 		String read;
 		while(!(read = in.readLine()).equals(END_OF_MESSAGE)) builder.append(read).append("\n");
+		logger.info(String.format("Session %s, got %s", "Admin", builder));
 		return builder.toString();
 	}
 
