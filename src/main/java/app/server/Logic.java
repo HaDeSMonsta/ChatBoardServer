@@ -192,7 +192,8 @@ public class Logic extends Thread {
 		}
 
 		if(request.length != 4) return "Invalid request, four parts needed for createPost";
-		if(request[3].length() > 500) return "Text is too long";//TODO check for empty text
+		if(request[3].length() > 500) return "Text is too long";
+		if(request[3].isBlank()) return "Text must not be blank";
 
 		User user;
 		String name = request[1];
@@ -209,30 +210,30 @@ public class Logic extends Thread {
 			return String.format("%s is not a valid int", request[2]);
 		}
 
+		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
+
 		if(user.getSecNum() != secNum) {
 			userService.setBlockStatus(user, true);
 			return "Invalid Security number, blocked User " + name;
-		}//TODO first check if blocked, then check number
-
-		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
+		}
 
 		Optional<Post> postOption = postService.createAndSavePost(user, text);
 
 		return postOption.isPresent() ? String.format("Created Post with ID %d", postOption.get().getId()) :
-				"Unable to create User (This should *never* happen)";//TODO We are creating posts here
+				"Unable to create Post (This should *never* happen)";
 	}
 
 	private String deletePost(String[] request) {
 		if(request.length != 4) return "Invalid request, four parts required for deletePost";
 
-		User user;
+		User author;
 		String name = request[1];
-		Optional<User> option = userService.getUserByName(name);
+		Optional<User> userOption = userService.getUserByName(name);
 		int secNum;
 		Long postId;
 
-		if(option.isEmpty()) return "Invalid username, user does not exist";
-		user = option.get();
+		if(userOption.isEmpty()) return "Invalid username, user does not exist";
+		author = userOption.get();
 
 		try {
 			secNum = Integer.parseInt(request[2]);
@@ -240,12 +241,12 @@ public class Logic extends Thread {
 			return String.format("%s is not a valid int", request[2]);
 		}
 
-		if(user.getSecNum() != secNum) {
-			userService.setBlockStatus(user, true);
+		if(author.getBlocked()) return String.format("User %s is blocked", author.getName());
+
+		if(author.getSecNum() != secNum) {
+			userService.setBlockStatus(author, true);
 			return "Invalid Security number, blocked User " + name;
 		}
-
-		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
 
 		try {
 			postId = Long.parseLong(request[3]);
@@ -253,9 +254,15 @@ public class Logic extends Thread {
 			return String.format("%s is not a valid long", request[3]);
 		}
 
-		if(postService.getPostById(postId).isEmpty()) return String.format("No Post with ID %d found", postId);
+		Optional<Post> postOption;
+		if((postOption = postService.getPostById(postId)).isEmpty()) return
+				String.format("No Post with ID %d found", postId);
 
-		postService.deletePost(postId);//TODO you should probably only be able to delete your own posts
+		Post post = postOption.get();
+		if(!post.getAuthor().equals(author)) return
+				String.format("You can only delete your own Posts. Author: %s, provided user: %s", author, post);
+
+		postService.deletePost(postId);
 		return String.format("Deleted Post with ID %d", postId);
 	}
 
@@ -278,12 +285,12 @@ public class Logic extends Thread {
 			return String.format("%s is not a valid int", request[2]);
 		}
 
+		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
+
 		if(user.getSecNum() != secNum) {
 			userService.setBlockStatus(user, true);
 			return "Invalid Security number, blocked User " + name;
 		}
-
-		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
 
 		try {
 			postId = Long.parseLong(request[3]);
@@ -334,12 +341,12 @@ public class Logic extends Thread {
 
 		user = option.get();
 
+		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
+
 		if(!(user.getSecNum() == secNum)) {
 			userService.setBlockStatus(user, true);
 			return String.format("Invalid Security number %d for User %s, User blocked", secNum, name);
 		}
-
-		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
 
 		List<Post> posts = postService.getAmountOfPosts(limit);
 		if(posts.isEmpty()) return "No posts found";

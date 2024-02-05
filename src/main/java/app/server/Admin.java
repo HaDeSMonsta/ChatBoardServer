@@ -35,6 +35,7 @@ public class Admin {
 	private static final int PORT = Integer.parseInt(System.getenv("ADMIN_PORT"));
 	private static final String ADMIN_PASSWORD = System.getenv("ADMIN_PASSWORD");
 	public static final String END_OF_MESSAGE = "!EOM!";
+	public static final String END_OF_CONVERSATION = "Goodbye";
 	private static final String MIGRATION_PATH = "/migration";
 	private final Logger logger = LogManager.getLogger(Admin.class);
 	private final UserService userService;
@@ -79,7 +80,8 @@ public class Admin {
 					if(!ref.authenticated) {
 						out.write("Timeout reached");
 						out.newLine();
-//TODO add EOM
+						out.write(END_OF_MESSAGE);
+						out.newLine();
 						out.flush();
 						out.close();
 					}
@@ -90,7 +92,7 @@ public class Admin {
 
 			String attemptedPassword;
 			if((attemptedPassword = readStream(in).trim()).equals(ADMIN_PASSWORD)) ref.authenticated = true;
-			else logger.info("Login attempt with password " + attemptedPassword + " PWD " + ADMIN_PASSWORD); //TODO remove debug print of pwd
+			else logger.info("Login attempt with password " + attemptedPassword);
 
 			logger.info("Started new Admin session");
 			writeStream(out, "Password accepted");
@@ -107,7 +109,7 @@ public class Admin {
 					case "migrate" -> migrateFromJSON();
 					case "exit" -> {
 						done = true;
-						yield "Goodbye";//TODO make this public static, don't want to change it more than once
+						yield END_OF_CONVERSATION;
 					}
 					default -> "Invalid request";
 				};
@@ -182,7 +184,7 @@ public class Admin {
 		}
 
 		long requests = logService.getLongsByHour(start);
-		return String.format("There were %s requests in the hour from %s", requests, start);//TODO make it from - to
+		return String.format("There were %s requests in the hour from %s to %s", requests, start, start.plusHours(1));
 	}
 
 	private String migrateFromJSON() {
@@ -228,24 +230,11 @@ public class Admin {
 		}
 
 		try {
-			Thread.sleep(3000);
-		} catch(InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-
-		try {
-			Thread.sleep(3_000);//TODO remove this (that's why it took so long in testing 
-		} catch(InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-
-		try {
 
 			// User migration
 			try (DirectoryStream<Path> users = Files.newDirectoryStream(usersPath)) {
 
 				for(Path userJson : users) {
-					logger.info("Iterating over user: " + userJson);
 
 					JSONObject user = (JSONObject) new JSONParser()
 							.parse(
@@ -254,12 +243,10 @@ public class Admin {
 									)
 							);
 
-					logger.info("Got user: " + user);
 					Optional<User> option = userService.createAndSafeUser(
 							user.get("name").toString(),
 							Integer.parseInt(user.get("securityNumber").toString())
 					);
-					logger.info("Got Option: " + option);
 					if(option.isEmpty()) logger.error(String.format(
 							"Unable to create user %s, probably because name already exists",
 							user

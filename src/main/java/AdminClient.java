@@ -7,6 +7,7 @@ import java.util.Scanner;
 public class AdminClient {
 	private static final Scanner scanner = new Scanner(System.in);
 	private static final String END_OF_MESSAGE = Admin.END_OF_MESSAGE;
+	private static final String END_OF_CONVERSATION = Admin.END_OF_CONVERSATION;
 
 	public static void main(String[] args) {
 
@@ -29,7 +30,7 @@ public class AdminClient {
 
 				final String response = readStream(in);
 				System.out.println("Answer:\n" + response);
-				if(response.trim().equals("Goodbye")) break;
+				if(response.trim().equals(END_OF_CONVERSATION)) break;
 				System.out.print("Enter next command: ");
 
 				final String request = scanner.nextLine();
