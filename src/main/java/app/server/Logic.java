@@ -212,7 +212,7 @@ public class Logic extends Thread {
 		if(user.getSecNum() != secNum) {
 			userService.setBlockStatus(user, true);
 			return "Invalid Security number, blocked User " + name;
-		}
+		}//TODO first check if blocked, then check number
 
 		if(user.getBlocked()) return String.format("User %s is blocked", user.getName());
 
