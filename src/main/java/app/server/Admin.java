@@ -240,7 +240,7 @@ public class Admin {
 							Integer.parseInt(user.get("securityNumber").toString())
 					);
 					if(option.isEmpty()) logger.error(String.format(
-							"Unable to create user %s, probably because name already exists",
+							"Unable to create user %s, probably because name is empty/already exists",
 							user
 					));
 					else userService.setBlockStatus(
