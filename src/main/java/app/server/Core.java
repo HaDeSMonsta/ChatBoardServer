@@ -44,6 +44,7 @@ public class Core {
 
 	public void start() {
 		logger.info("Core Thread running");
+
 		logger.info("Creating default user and post");
 		// Without this the database might be empty and gets won't work
 		String defName = "DEFAULT";
@@ -66,8 +67,8 @@ public class Core {
 		new Thread(() -> new Admin(userService, postService, logService).start(), "Admin").start();
 
 		// Create a new thread that continuously reads authentication keys.
+		logger.info("Starting Thread to read Matr. nums");
 		new Thread(() -> {
-			logger.info("Started Thread to read Matr. nums");
 			while(true) readKeys();
 		}, "KeyReader").start();
 
