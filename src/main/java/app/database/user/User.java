@@ -14,11 +14,11 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "sec_num", nullable = false)
-	private Integer secNum;
-
 	@Column(name = "name", unique = true, nullable = false)
 	private String name;
+
+	@Column(name = "sec_num", nullable = false)
+	private Integer secNum;
 
 	@Column(name = "blocked", nullable = false)
 	private Boolean blocked;
