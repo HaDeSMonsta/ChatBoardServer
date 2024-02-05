@@ -255,7 +255,7 @@ public class Logic extends Thread {
 
 		if(postService.getPostById(postId).isEmpty()) return String.format("No Post with ID %d found", postId);
 
-		postService.deletePost(postId);
+		postService.deletePost(postId);//TODO you should probably only be able to delete your own posts
 		return String.format("Deleted Post with ID %d", postId);
 	}
 
