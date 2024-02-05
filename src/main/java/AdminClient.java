@@ -1,10 +1,12 @@
+import app.server.Admin;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class AdminClient {
 	private static final Scanner scanner = new Scanner(System.in);
-	private static final String END_OF_MESSAGE = "!EOM!";
+	private static final String END_OF_MESSAGE = Admin.END_OF_MESSAGE;
 
 	public static void main(String[] args) {
 

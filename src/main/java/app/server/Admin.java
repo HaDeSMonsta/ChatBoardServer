@@ -34,7 +34,7 @@ public class Admin {
 	private static final long SESSION_MS = SESSION_SECS * 1_000L;
 	private static final int PORT = Integer.parseInt(System.getenv("ADMIN_PORT"));
 	private static final String ADMIN_PASSWORD = System.getenv("ADMIN_PASSWORD");
-	private static final String END_OF_MESSAGE = "!EOM!";
+	public static final String END_OF_MESSAGE = "!EOM!";
 	private static final String MIGRATION_PATH = "/migration";
 	private final Logger logger = LogManager.getLogger(Admin.class);
 	private final UserService userService;
