@@ -234,7 +234,7 @@ public class Admin {
 		}
 
 		try {
-			Thread.sleep(3_000);
+			Thread.sleep(3_000);//TODO remove this (that's why it took so long in testing 
 		} catch(InterruptedException e) {
 			throw new RuntimeException(e);
 		}
