@@ -29,9 +29,7 @@ public class Entrypoint {
 	@PostConstruct
 	public void init() {
 		ThreadFactory coreThreadFactory = runnable -> new Thread(runnable, "core");
-		ThreadFactory adminThreadFactory = runnable -> new Thread(runnable, "admin");
 
 		CompletableFuture.runAsync(core::start, Executors.newSingleThreadExecutor(coreThreadFactory));
-		CompletableFuture.runAsync(admin::start, Executors.newSingleThreadExecutor(adminThreadFactory));
 	}
 }

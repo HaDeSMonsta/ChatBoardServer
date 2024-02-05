@@ -43,6 +43,8 @@ public class Core {
 	}
 
 	public void start() {
+		logger.info("Core Thread running");
+		logger.info("Creating default user and post");
 		// Without this the database might be empty and gets won't work
 		String defName = "DEFAULT";
 		Optional<User> userOption = userService.createAndSafeUser(defName, 535449769);
@@ -50,10 +52,18 @@ public class Core {
 		// Do not remove or alter comment below
 		// noinspection OptionalGetWithoutIsPresent
 		User u = userOption.orElseGet(() -> userService.getUserByName(defName).get());
-		postService.createAndSavePost(u, "DEFAULT");
+		postService.createAndSavePost(u, "");
 		postService.distinctPosts(u);
 		// Now at least the user DEFAULT exists and has exactly one post
 
+
+		logger.info("Starting Admin Thread");
+
+		// Create Admin Thread here instead of Entrypoint to use shared Service instances
+		// This is for guaranteed synchronization, even tho Postgres is ACID and has more properties
+		// But I'm not that familiar with that
+		// Also Admin only reads
+		new Thread(() -> new Admin(userService, postService, logService).start(), "Admin").start();
 
 		// Create a new thread that continuously reads authentication keys.
 		new Thread(() -> {

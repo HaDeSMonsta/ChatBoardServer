@@ -6,6 +6,7 @@ import app.database.post.Post;
 import app.database.post.PostService;
 import app.database.user.User;
 import app.database.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
@@ -28,7 +29,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 
-@Service
+@RequiredArgsConstructor
 public class Admin {
 	private static final int SESSION_SECS = Integer.parseInt(System.getenv("SESSION_SECS"));
 	private static final long SESSION_MS = SESSION_SECS * 1_000L;
@@ -41,13 +42,6 @@ public class Admin {
 	private final UserService userService;
 	private final PostService postService;
 	private final LogService logService;
-
-	@Autowired
-	public Admin(UserService userService, PostService postService, LogService logService) {
-		this.userService = userService;
-		this.postService = postService;
-		this.logService = logService;
-	}
 
 	public void start() {
 		logger.info("Adminserver is listening on port: " + PORT);
