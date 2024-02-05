@@ -60,6 +60,7 @@ public class UserService {
 	 * @return an Optional containing the created user if successful, or an empty Optional if there was an error
 	 */
 	public synchronized Optional<User> createAndSafeUser(String name, int secNum) {
+		// This should be checked *before* calling, it is only in the method for migration
 		if(name.isBlank() || secNum <= 0) return Optional.empty();
 		try {
 			User user = new User();
