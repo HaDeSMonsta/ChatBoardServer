@@ -34,6 +34,7 @@ public class Admin {
 	private static final long SESSION_MS = SESSION_SECS * 1_000L;
 	private static final int PORT = Integer.parseInt(System.getenv("ADMIN_PORT"));
 	private static final String ADMIN_PASSWORD = System.getenv("ADMIN_PASSWORD");
+	private static final String END_OF_MESSAGE = "!EOM!";
 	private static final String MIGRATION_PATH = "/migration";
 	private final Logger logger = LogManager.getLogger(Admin.class);
 	private final UserService userService;
@@ -86,7 +87,12 @@ public class Admin {
 				}
 			}).start();
 
-			if(readStream(in).equals(ADMIN_PASSWORD)) ref.authenticated = true;
+			String attemptedPassword;
+			if((attemptedPassword = readStream(in).trim()).equals(ADMIN_PASSWORD)) ref.authenticated = true;
+			else logger.info("Login attempt with password " + attemptedPassword + " PWD " + ADMIN_PASSWORD);
+
+			logger.info("Started new Admin session");
+			writeStream(out, "Password accepted");
 
 			boolean done = false;
 			do {
@@ -96,7 +102,7 @@ public class Admin {
 				String response = switch(request[0].toLowerCase()) {
 					case "all" -> getAllPosts();
 					case "num" -> getDataPerMatrNum(request[1]);
-					case "hour" -> getLogPerHour(request[2]);
+					case "hour" -> getLogPerHour(request[1]);
 					case "migrate" -> migrateFromJSON();
 					case "exit" -> {
 						done = true;
@@ -109,10 +115,14 @@ public class Admin {
 
 			} while(!done);
 
+		} catch(NullPointerException ignored) {
+			logger.info("Client closed session");
 		} catch(IOException | ArrayIndexOutOfBoundsException e) {
 			logger.error(e.getMessage());
 		} catch(Exception e) {
 			logger.error("Unexpected exception: " + e.getMessage());
+		} finally {
+			logger.info("Finished Admin session");
 		}
 	}
 
@@ -299,13 +309,15 @@ public class Admin {
 	private String readStream(BufferedReader in) throws IOException {
 		StringBuilder builder = new StringBuilder();
 		String read;
-		while((read = in.readLine()) != null) builder.append(read).append("\n");
+		while(!(read = in.readLine()).equals(END_OF_MESSAGE)) builder.append(read).append("\n");
 		return builder.toString();
 	}
 
 	private void writeStream(BufferedWriter out, String payload) throws IOException {
 		logger.info(String.format("Session %s, sending: %s", "Admin", payload));
 		out.write(payload);
+		out.newLine();
+		out.write(END_OF_MESSAGE);
 		out.newLine();
 		out.flush();
 	}
