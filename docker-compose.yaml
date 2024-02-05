@@ -4,7 +4,7 @@ services:
     build: .
     container_name: ChatBoardServer
     restart: unless-stopped
-    command: [ "/wait_for_it.sh", "java", "-jar", "ChatBoardServer_new.jar" ]
+    command: [ "/wait_for_it.sh", "java", "-jar", "ChatBoardServer.jar" ]
     network_mode: host
     volumes:
       - /home/hades/ChatBoardServer/userdata:/userdata

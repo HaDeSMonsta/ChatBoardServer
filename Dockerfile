@@ -18,7 +18,7 @@ FROM openjdk:17-alpine
 
 WORKDIR /app
 
-COPY --from=build /home/gradle/project/build/libs/ChatBoardServer_new.jar ./ChatBoardServer_new.jar
+COPY --from=build /home/gradle/project/build/libs/ChatBoardServer.jar ./ChatBoardServer.jar
 
 COPY ./wait_for_it.sh /wait_for_it.sh
 

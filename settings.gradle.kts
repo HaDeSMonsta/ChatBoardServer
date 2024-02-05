@@ -1,2 +1,1 @@
-rootProject.name = "ChatBoardServer_new"
-
+rootProject.name = "ChatBoardServer"
