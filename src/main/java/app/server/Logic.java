@@ -199,7 +199,7 @@ public class Logic extends Thread {
 		User user;
 		String name = request[1];
 		int secNum;
-		String text = request[3];
+		String text = request[3].trim();
 		Optional<User> userOption = userService.getUserByName(name);
 
 		if(userOption.isEmpty()) return "Invalid username, user does not exist";
