@@ -29,6 +29,8 @@ dependencies {
         exclude("org.springframework.boot", "spring-boot-starter-logging")
     }
 
+    implementation("org.flywaydb:flyway-core")
+
     implementation("org.postgresql:postgresql")  // Postgres JDBC driver
 
     implementation("com.googlecode.json-simple:json-simple:1.1")
