@@ -79,6 +79,7 @@ public class Admin {
 					if(!ref.authenticated) {
 						out.write("Timeout reached");
 						out.newLine();
+//TODO add EOM
 						out.flush();
 						out.close();
 					}
@@ -89,7 +90,7 @@ public class Admin {
 
 			String attemptedPassword;
 			if((attemptedPassword = readStream(in).trim()).equals(ADMIN_PASSWORD)) ref.authenticated = true;
-			else logger.info("Login attempt with password " + attemptedPassword + " PWD " + ADMIN_PASSWORD);
+			else logger.info("Login attempt with password " + attemptedPassword + " PWD " + ADMIN_PASSWORD); //TODO remove debug print of pwd
 
 			logger.info("Started new Admin session");
 			writeStream(out, "Password accepted");
@@ -106,7 +107,7 @@ public class Admin {
 					case "migrate" -> migrateFromJSON();
 					case "exit" -> {
 						done = true;
-						yield "Goodbye";
+						yield "Goodbye";//TODO make this public static, don't want to change it more than once
 					}
 					default -> "Invalid request";
 				};
@@ -181,7 +182,7 @@ public class Admin {
 		}
 
 		long requests = logService.getLongsByHour(start);
-		return String.format("There were %s requests in the hour from %s", requests, start);
+		return String.format("There were %s requests in the hour from %s", requests, start);//TODO make it from - to
 	}
 
 	private String migrateFromJSON() {
