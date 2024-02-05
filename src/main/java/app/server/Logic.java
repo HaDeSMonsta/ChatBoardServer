@@ -192,7 +192,7 @@ public class Logic extends Thread {
 		}
 
 		if(request.length != 4) return "Invalid request, four parts needed for createPost";
-		if(request[3].length() > 500) return "Text is too long";
+		if(request[3].length() > 500) return "Text is too long";//TODO check for empty text
 
 		User user;
 		String name = request[1];
@@ -219,7 +219,7 @@ public class Logic extends Thread {
 		Optional<Post> postOption = postService.createAndSavePost(user, text);
 
 		return postOption.isPresent() ? String.format("Created Post with ID %d", postOption.get().getId()) :
-				"Unable to create User (This should *never* happen)";
+				"Unable to create User (This should *never* happen)";//TODO We are creating posts here
 	}
 
 	private String deletePost(String[] request) {
