@@ -29,6 +29,7 @@ public class Core {
 	private static final long NUM_SCAN_INTVL_MS = NUM_SCAN_INTVL_MIN * 60_000L;
 	private static final int MAX_CONCURRENT_CONNECTIONS = Integer.parseInt(
 			System.getenv("MAX_CONCURRENT_CONNECTIONS"));
+	private static final boolean ENABLE_ADMIN = Boolean.parseBoolean(System.getenv("ENABLE_ADMIN"));
 	private final Logger logger = LogManager.getLogger(Core.class);
 	private final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_CONCURRENT_CONNECTIONS);
 	private final UserService userService;
@@ -58,13 +59,15 @@ public class Core {
 		// Now at least the user DEFAULT exists and has exactly one post
 
 
-		logger.info("Starting Admin Thread");
+		if(ENABLE_ADMIN) {
+			logger.info("Starting Admin Thread");
 
-		// Create Admin Thread here instead of Entrypoint to use shared Service instances
-		// This is for guaranteed synchronization, even tho Postgres is ACID and has more properties
-		// But I'm not that familiar with that
-		// Also Admin only reads
-		new Thread(() -> new Admin(userService, postService, logService).start(), "Admin").start();
+			// Create Admin Thread here instead of Entrypoint to use shared Service instances
+			// This is for guaranteed synchronization, even tho Postgres is ACID and has more properties
+			// But I'm not that familiar with that
+			// Also Admin only reads
+			new Thread(() -> new Admin(userService, postService, logService).start(), "Admin").start();
+		}
 
 		// Create a new thread that continuously reads authentication keys.
 		logger.info("Starting Thread to read Matr. nums");

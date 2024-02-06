@@ -33,7 +33,6 @@ public class Admin {
 	private static final long SESSION_MS = SESSION_SECS * 1_000L;
 	private static final int PORT = Integer.parseInt(System.getenv("ADMIN_PORT"));
 	private static final String ADMIN_PASSWORD = System.getenv("ADMIN_PASSWORD");
-	private static final boolean DISABLE_ADMIN = Boolean.parseBoolean(System.getenv("DISABLE_ADMIN"));
 	public static final String END_OF_MESSAGE = "!EOM!";
 	public static final String END_OF_CONVERSATION = "Goodbye";
 	private static final String MIGRATION_PATH = "/migration";
@@ -43,7 +42,6 @@ public class Admin {
 	private final LogService logService;
 
 	public void start() {
-		if(DISABLE_ADMIN) return;
 		logger.info("Adminserver is listening on port: " + PORT);
 
 		try (ServerSocket server = new ServerSocket(PORT)) {
