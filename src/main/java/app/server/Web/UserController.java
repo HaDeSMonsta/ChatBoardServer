@@ -28,13 +28,12 @@ public class UserController {
 				.map(user -> new UserPDT(
 						user.getId(),
 						user.getName(),
-						user.getSecNum(),
 						user.getBlocked()
 				))
 				.sorted(Comparator.comparing(UserPDT::id))
 				.toList();
 	}
 
-	public record UserPDT(long id, String name, int secNum, boolean blocked) {
+	public record UserPDT(long id, String name, boolean blocked) {
 	}
 }

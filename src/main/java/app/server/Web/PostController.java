@@ -2,7 +2,6 @@ package app.server.Web;
 
 import app.database.post.Post;
 import app.database.post.PostService;
-import app.database.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +27,7 @@ public class PostController {
 				.stream()
 				.map(post -> new PostDTO(
 						post.getId(),
-						post.getAuthor(),
+						post.getAuthor().getName(),
 						postService.getVotes(post),
 						post.getContent()
 				))
@@ -36,6 +35,6 @@ public class PostController {
 				.toList();
 	}
 
-	public record PostDTO(long id, User user, int votes, String content) {
+	public record PostDTO(long id, String userName, int votes, String content) {
 	}
 }
