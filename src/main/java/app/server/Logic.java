@@ -56,7 +56,7 @@ public class Logic extends Thread {
 				logger.info("Session ended");
 				writeStream(out, "Invalid authentication");
 				return;
-			} else if(!activeKeys.add(authKey)) {
+			} else if(false && !activeKeys.add(authKey)) {
 				logger.info(String.format("Someone is trying to connect with Matrikel Numer %s while in use",
 						authKey));
 				writeStream(out, "Key is in use, connection closed");
