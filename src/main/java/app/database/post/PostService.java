@@ -189,13 +189,19 @@ public class PostService {
 
 	public synchronized Optional<String> migratePost(
 			UserService userService, String authorName, String content, String upvotes, String downvotes) {
+
 		Optional<User> userOptional = userService.getUserByName(authorName);
 		User author;
 		if(userOptional.isEmpty()) return Optional.of("Unable to get user " + authorName);
 		else author = userOptional.get();
 
 		if(content.length() > 500) content = content.substring(0, 497) + "...";
-		Optional<Post> postOptional = createAndSavePost(author, content);
+
+		List<Post> posts = postRepository.findAll();
+		for(Post p : posts) if (p.getAuthor().getName().equals(author.getName()) && p.getContent().equals(content))
+			return Optional.of("Post already exists");
+
+			Optional<Post> postOptional = createAndSavePost(author, content);
 
 		Post post;
 		if(postOptional.isEmpty()) return Optional.of("Unable to create post");
