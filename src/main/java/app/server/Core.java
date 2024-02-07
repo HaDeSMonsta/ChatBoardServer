@@ -29,7 +29,6 @@ public class Core {
 	private static final long NUM_SCAN_INTVL_MS = NUM_SCAN_INTVL_MIN * 60_000L;
 	private static final int MAX_CONCURRENT_CONNECTIONS = Integer.parseInt(
 			System.getenv("MAX_CONCURRENT_CONNECTIONS"));
-	private static final boolean ENABLE_ADMIN = Boolean.parseBoolean(System.getenv("ENABLE_ADMIN"));
 	private final Logger logger = LogManager.getLogger(Core.class);
 	private final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_CONCURRENT_CONNECTIONS);
 	private final UserService userService;
