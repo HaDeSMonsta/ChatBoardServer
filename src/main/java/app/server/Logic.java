@@ -63,7 +63,7 @@ public class Logic extends Thread {
 				keyInUse = true;
 				return;
 			} else {
-				logger.info(String.format("Authentication %s Ok, Session will begin", authKey));
+				logger.info(String.format("Authentication %s ok, Session will begin", authKey));
 				writeStream(out, "Authentication ok");
 			}
 
