@@ -112,7 +112,7 @@ public class Core {
 		try (BufferedReader reader = new BufferedReader(new FileReader(KEYS_PATH))) {
 
 			String key;
-			while((key = reader.readLine()) != null) temp.add(key);
+			while((key = reader.readLine()) != null) temp.add(key.trim());
 
 		} catch(IOException e) {
 			logger.error(e.getMessage());

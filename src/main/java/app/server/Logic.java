@@ -64,7 +64,7 @@ public class Logic extends Thread {
 				return;
 			} else {
 				logger.info(String.format("Authentication %s Ok, Session will begin", authKey));
-				writeStream(out, "Authentication Ok");
+				writeStream(out, "Authentication ok");
 			}
 
 			try {
