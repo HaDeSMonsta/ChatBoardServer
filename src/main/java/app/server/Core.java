@@ -59,15 +59,11 @@ public class Core {
 		// Now at least the user DEFAULT exists and has exactly one post
 
 
-		if(ENABLE_ADMIN) {
-			logger.info("Starting Admin Thread");
-
-			// Create Admin Thread here instead of Entrypoint to use shared Service instances
-			// This is for guaranteed synchronization, even tho Postgres is ACID and has more properties
-			// But I'm not that familiar with that
-			// Also Admin only reads
-			new Thread(() -> new Admin(userService, postService, logService).start(), "Admin").start();
-		}
+		new Thread(() -> {
+			logger.info("Started migration Thread");
+			String res = new Migration(userService, postService).migrate();
+			logger.info("Finished migration: " + res);
+		}, "Migrator").start();
 
 		// Create a new thread that continuously reads authentication keys.
 		logger.info("Starting Thread to read Matr. nums");

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class LogService {
@@ -13,6 +14,10 @@ public class LogService {
 	@Autowired
 	public LogService(LogRepository logRepository) {
 		this.logRepository = logRepository;
+	}
+
+	public synchronized List<Log> getAllLogs() {
+		return logRepository.findAll();
 	}
 
 	public synchronized void log(int matrNum) {
@@ -28,6 +33,7 @@ public class LogService {
 
 	public synchronized long getLongsByHour(LocalDateTime startHour) {
 		LocalDateTime endHour = startHour.plusHours(1);
+		System.out.println(logRepository.countLogsBetween(startHour, endHour));
 		return logRepository.countLogsBetween(startHour, endHour);
 	}
 
