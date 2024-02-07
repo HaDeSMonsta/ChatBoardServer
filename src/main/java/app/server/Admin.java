@@ -228,6 +228,17 @@ public class Admin {
 
 				for(Path userJson : users) {
 
+					try (BufferedReader reader = new BufferedReader(new FileReader(userJson.toFile()))) {
+						String line = reader.readLine();
+						if(line == null || line.isBlank()) {
+						logger.error(String.format("File %s is blank", userJson));
+						continue;
+						}
+					} catch(IOException ioe) {
+						logger.error(String.format("Unable to open file %s, error: %s", userJson, ioe.getMessage()));
+						continue;
+					}
+
 					JSONObject user = (JSONObject) new JSONParser()
 							.parse(
 									new BufferedReader(
