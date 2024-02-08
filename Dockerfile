@@ -7,6 +7,7 @@ RUN mkdir /.gradle && chmod 777 /.gradle
 WORKDIR /home/gradle/project
 
 COPY --chown=gradle:gradle build.gradle.kts /home/gradle/project
+COPY --chown=gradle:gradle settings.gradle.kts /home/gradle/project/
 
 RUN gradle dependencies --no-daemon
 
