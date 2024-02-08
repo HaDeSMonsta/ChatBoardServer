@@ -180,6 +180,7 @@ public class PostService {
 		List<Post> posts = getAllPosts()
 				.stream()
 				.filter(p -> p.getAuthor().equals(user))
+				.sorted(Comparator.comparing(Post::getId))
 				.toList();
 
 		for(Post p : posts) {
