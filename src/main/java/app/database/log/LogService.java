@@ -31,12 +31,6 @@ public class LogService {
 		return logRepository.findFirstAndLastLogPerMatrNum(matrNum);
 	}
 
-	public synchronized long getLongsByHour(LocalDateTime startHour) {
-		LocalDateTime endHour = startHour.plusHours(1);
-		System.out.println(logRepository.countLogsBetween(startHour, endHour));
-		return logRepository.countLogsBetween(startHour, endHour);
-	}
-
 	public synchronized long getTotalCountOfLogs() {
 		return logRepository.count();
 	}
