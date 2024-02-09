@@ -19,17 +19,16 @@ public class NumStatsController {
 		this.postService = postService;
 	}
 
-	@SuppressWarnings("SpellCheckingInspection")
 	@GetMapping
 	public numStatsPDT[] getNumStats() {
 		int userNums = userService.getAllUsers().size();
 		int postNums = postService.getAllPosts().size();
 		return new numStatsPDT[]{
-				new numStatsPDT("Usercount", userNums),
-				new numStatsPDT("Postcount", postNums)
+				new numStatsPDT("Total count of Users", userNums),
+				new numStatsPDT("Total count of Posts", postNums)
 		};
 	}
 
-	public record numStatsPDT(String name, int count) {
+	public record numStatsPDT(String desc, int count) {
 	}
 }
