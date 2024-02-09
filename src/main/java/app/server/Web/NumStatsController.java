@@ -19,6 +19,7 @@ public class NumStatsController {
 		this.postService = postService;
 	}
 
+	@SuppressWarnings("SpellCheckingInspection")
 	@GetMapping
 	public numStatsPDT[] getNumStats() {
 		int userNums = userService.getAllUsers().size();
