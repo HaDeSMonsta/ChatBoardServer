@@ -1,10 +1,10 @@
 #!/bin/sh
 
-cmd="$@"
+cmd="$*"
 sleepTime=5
 
 echo "Sleeping for $sleepTime seconds..."
 sleep $sleepTime
 
 echo "Running command: $cmd"
-exec $cmd
+exec $cmd # Doesn't work with double quotes

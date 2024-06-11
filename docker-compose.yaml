@@ -7,9 +7,9 @@ services:
     command: [ "/wait_for_it.sh", "java", "-jar", "ChatBoardServer.jar" ]
     network_mode: host
     volumes:
-      - /home/hades/ChatBoardServer/userdata:/userdata
-      - /home/hades/ChatBoardServer/logs:/logs
-      - /home/hades/ChatBoardServer/migrate:/migration
+      - ./userdata:/userdata
+      - ./logs:/logs
+#      - ./migrate:/migration
     env_file:
       - .env
     depends_on:
@@ -23,5 +23,5 @@ services:
       - "${POSTGRES_PORT}:5432"
     env_file:
       - .env
-    volumes:
-      - /home/hades/ChatBoardServer/postgres_data:/var/lib/postgresql/data
+#    volumes:
+#      - ./postgres_data:/var/lib/postgresql/data
