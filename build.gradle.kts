@@ -8,19 +8,23 @@ repositories {
     mavenCentral()
 }
 
+val junitVersion = "5.11.0-M1"
+val lombokVersion = "1.18.32"
+val logVersion = "2.17.1"
+
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 
     // https://projectlombok.org/setup/gradle
-    compileOnly("org.projectlombok:lombok:1.18.30")
-    annotationProcessor("org.projectlombok:lombok:1.18.30")
-    testCompileOnly("org.projectlombok:lombok:1.18.30")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
 
-    implementation("org.apache.logging.log4j:log4j-core:2.17.1")
-    implementation("org.apache.logging.log4j:log4j-api:2.17.1")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.1")
+    implementation("org.apache.logging.log4j:log4j-core:$logVersion")
+    implementation("org.apache.logging.log4j:log4j-api:$logVersion")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$logVersion")
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude("org.springframework.boot", "spring-boot-starter-logging")
